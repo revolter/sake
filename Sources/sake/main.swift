@@ -1,8 +1,10 @@
+import Foundation
 import Commander
+import SakeKit
 
 Group {
     let initCommand = command {
-        print("Not implemented yet")
+        try GenerateSakefile(path: FileManager.default.currentDirectoryPath).execute()
     }
     let taskCommand = command(Argument<String>("task", description: "the task to be executed")) { task in
         print("Not implemented yet")

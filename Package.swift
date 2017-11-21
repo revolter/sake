@@ -10,12 +10,14 @@ let package = Package(
         .executable(name: "sake", targets: ["sake"])
     ],
     dependencies: [
-        .package(url: "https://github.com/kylef/Commander.git", from: "0.8.0")
+        .package(url: "https://github.com/yonaskolb/XcodeGen.git", from: "1.4.0"),
+        .package(url: "https://github.com/kylef/Commander.git", from: "0.6.1")
     ],
     targets: [
+        .target(name: "SakeKit", dependencies: ["XcodeGen"]),
         .target(name: "SakefileDescription", dependencies: []),
-        .target(name: "sake", dependencies: ["SakefileDescription", "Commander"]),
-        .testTarget(name: "sakeTests", dependencies: ["sake"])
+        .target(name: "sake", dependencies: ["Commander", "SakefileDescription", "SakeKit"]),
+        .testTarget(name: "SakeKitTests", dependencies: ["SakeKit"])
     ],
     swiftLanguageVersions: [4]
 )
