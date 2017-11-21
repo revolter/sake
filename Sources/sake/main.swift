@@ -10,7 +10,7 @@ Group {
         print("Not implemented yet")
     }
     let generateXcodeProjCommand = command {
-        print("Not implemented yet")
+        try GenerateProject(path: FileManager.default.currentDirectoryPath).execute()
     }
     let tasksCommand = command {
         print("Not implemented yet")

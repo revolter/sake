@@ -16,7 +16,7 @@ public class GenerateSakefile {
     // MARK: - Public
     
     public func execute() throws {
-        let sakefilePath = URL.init(fileURLWithPath: path).appendingPathComponent("Sakefile")
+        let sakefilePath = URL.init(fileURLWithPath: path).appendingPathComponent("Sakefile.swift")
         if fileManager.fileExists(atPath: sakefilePath.path) {
             throw "There's a Sakefile already at \(sakefilePath.path)".error
         }
@@ -30,6 +30,7 @@ public class GenerateSakefile {
         }.run()
         """
         try content.write(to: sakefilePath, atomically: true, encoding: .utf8)
+        print("Sakefile.swift generated")
     }
     
 }
