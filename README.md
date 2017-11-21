@@ -2,10 +2,41 @@
 
 Sake is a Swift command line tool that helps you automate tasks in your projects. It's heavily inspired by [Makefile](https://en.wikipedia.org/wiki/Makefile) and [Rake](https://github.com/ruby/rake).
 
-## Setup
+## Motivation 💅
+
+Why automating tasks using shell scripting or Ruby when you can do it in Swift, a language you are already familiar with?
+Sake aims to provide a command line tool and the foundation to automate your tasks in Swift.
+
+## Installation 🥑
+
+You can easily install rake using [Homebrew](https://brew.sh/):
+
+```
+brew tap pepibumur/sake git@github.com:pepibumur/sake.git
+brew install sake
+```
+
+## Setup ⚒
 
 1. Git clone the project `git clone git@github.com:pepibumur/sake.git`.
 2. Build `swift build`.
+
+## Sakefile
+
+Sakefile is the file that defines your project tasks:
+
+```swift
+// Sakefile
+import SakefileDescription
+
+task("build", dependencies: ["clean]) {
+    // Build task
+}
+
+task("clean") {
+    // Clean task
+}
+```
 
 ## License
 
