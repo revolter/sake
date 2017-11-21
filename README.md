@@ -1,4 +1,6 @@
-# Sake
+# Sake - Swift Make
+
+[![Build Status](https://travis-ci.org/pepibumur/sake.svg?branch=master)](https://travis-ci.org/pepibumur/sake)
 
 Sake is a Swift command line tool that helps you automate tasks in your projects. It's heavily inspired by [Makefile](https://en.wikipedia.org/wiki/Makefile) and [Rake](https://github.com/ruby/rake).
 
