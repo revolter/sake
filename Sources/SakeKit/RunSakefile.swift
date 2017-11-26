@@ -20,7 +20,7 @@ public class RunSakefile {
     
     public func execute() throws {
         guard let sakefilePath = sakefilePath() else {
-            throw "Couldn't find Sakefile.swift in directory \(path)".error
+            throw "Couldn't find Sakefile.swift in directory \(path)"
         }
 
         // TODO

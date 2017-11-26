@@ -4,21 +4,31 @@ import xcproj
 import PathKit
 import ProjectSpec
 
+/// Generates a Xcode Project to edit the Sakefile.
 public class GenerateProject {
     
     // MARK: - Attributes
-    
+
+    /// Path to the folder where the Sakefile.swift is.
     fileprivate let path: String
+    
+    /// File manager.
     fileprivate let fileManager: FileManager = .default
     
     // MARK: - Init
     
+    /// Initializes the command with the path to the folder where the Sakefile.swift is.
+    ///
+    /// - Parameter path: path to the folder where the Sakefile.swift file is.
     public init(path: String) {
         self.path = path
     }
     
     // MARK: - Public
     
+    /// Generates the Xcode project.
+    ///
+    /// - Throws: error if the generation fails.
     public func execute() throws {
         let projectPath = URL.init(fileURLWithPath: path).appendingPathComponent("Sakefile.xcodeproj")
         if fileManager.fileExists(atPath: projectPath.path) {
