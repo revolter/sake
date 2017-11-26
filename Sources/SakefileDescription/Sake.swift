@@ -2,6 +2,8 @@ import Foundation
 
 // MARK: - Utils
 
+extension String: Error {}
+
 public final class Utils {
     public  final class HTTP {
         let session: URLSession = .shared
@@ -88,20 +90,29 @@ public final class Sake {
 public extension Sake {
     
     public func run() {
-        guard let argument = CommandLine.arguments.first else {
-            fatalError("Missing argument")
+        tasksInitializer(tasks)
+        var arguments = CommandLine.arguments
+        arguments.remove(at: 0)
+        guard let argument = arguments.first else {
+            print("> Error: Missing argument")
+            exit(1)
         }
         if argument == "tasks" {
             printTasks()
         } else if argument == "task" {
-            if CommandLine.arguments.count != 2 {
-                fatalError("Missing task name")
+            if arguments.count != 2 {
+                print("> Error: Missing task name")
+                exit(1)
             }
             do {
-                try run(task: CommandLine.arguments[1])
+                try run(task: arguments[1])
             } catch {
-                print(error)
+                print("> Error: \(error)")
+                exit(1)
             }
+        } else {
+            print("> Error: Invalid argument")
+            exit(1)
         }
     }
     
@@ -113,23 +124,11 @@ public extension Sake {
     
     fileprivate func run(task taskName: String) throws {
         guard let task = tasks.tasks.first(where: {$0.name == taskName}) else {
-            fatalError("Task \(taskName) not found")
+            return
         }
         try task.dependencies.forEach({ try run(task: $0) })
-        print("> Running \(task.name)")
+        print("> Running \"\(task.name)\"")
         try task.action(self.utils)
     }
     
 }
-
-Sake {
-    $0.task(name: "clean", description: "cleans the project build directory", action: { (_) in
-        // Cleans the build directory
-    })
-    $0.task(name: "build", description: "builds the project", dependencies: ["clean"], action: { (_) in
-        // Builds the project
-    })
-    $0.task(name: "test", description: "tests the project", dependencies: ["clean"], action: { (_) in
-        // Test the project
-    })
-}.run()

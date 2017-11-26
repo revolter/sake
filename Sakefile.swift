@@ -1,7 +1,8 @@
 import SakefileDescription
 
-tasks {
-    $0.add("build") {
-        // Add your task here
-    }
+Sake {
+    $0.task(name: "build", description: "xxx", action: { (_) in
+        print("wooorks")
+        throw "xxxx"
+    })
 }.run()

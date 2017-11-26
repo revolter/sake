@@ -7,13 +7,13 @@ Group {
         try GenerateSakefile(path: FileManager.default.currentDirectoryPath).execute()
     }
     let taskCommand = command(Argument<String>("task", description: "the task to be executed")) { task in
-        print("Not implemented yet")
+        try RunSakefile(path: FileManager.default.currentDirectoryPath, arguments: ["task", task]).execute()
     }
     let generateXcodeProjCommand = command {
         try GenerateProject(path: FileManager.default.currentDirectoryPath).execute()
     }
     let tasksCommand = command {
-        print("Not implemented yet")
+        try RunSakefile(path: FileManager.default.currentDirectoryPath, arguments: ["tasks"]).execute()
     }
     $0.addCommand("init", "initializes a Sakefile in the current directory", initCommand)
     $0.addCommand("task", "runs the task passed", taskCommand)
