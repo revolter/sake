@@ -18,7 +18,7 @@ public  final class HTTP {
         let semaphore = DispatchSemaphore(value: 0)
         var error: Error?
         var value: T?
-        session.dataTask(with: request) { (data, response, _error) in
+        session.dataTask(with: request) { (data, _, _error) in
             defer {
                 semaphore.signal()
             }

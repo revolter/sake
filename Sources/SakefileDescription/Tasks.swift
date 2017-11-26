@@ -14,7 +14,7 @@ public final class Task {
     let dependencies: [String]
 
     /// Task action closure.
-    let action: (Utils) throws -> ()
+    let action: (Utils) throws -> Void
 
     /// Initializes the task.
     ///
@@ -23,7 +23,7 @@ public final class Task {
     ///   - description: task description.
     ///   - dependencies: task dependencies.
     ///   - action: action closure.
-    init(name: String, description: String, dependencies: [String] = [], action: @escaping (Utils) throws -> ()) {
+    init(name: String, description: String, dependencies: [String] = [], action: @escaping (Utils) throws -> Void) {
         self.name = name
         self.description = description
         self.dependencies = dependencies
@@ -45,7 +45,7 @@ public final class Tasks {
     ///   - description: task description.
     ///   - dependencies: task dependencies.
     ///   - action: task action.
-    public func task(name: String, description: String, dependencies: [String] = [], action: @escaping (Utils) throws -> ()) {
+    public func task(name: String, description: String, dependencies: [String] = [], action: @escaping (Utils) throws -> Void) {
         tasks.append(Task(name: name, description: description, dependencies: dependencies, action: action))
     }
     

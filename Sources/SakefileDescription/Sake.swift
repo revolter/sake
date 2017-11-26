@@ -6,9 +6,9 @@ public final class Sake {
     
     fileprivate let utils: Utils = Utils()
     fileprivate let tasks: Tasks = Tasks()
-    fileprivate let tasksInitializer: (Tasks) -> ()
+    fileprivate let tasksInitializer: (Tasks) -> Void
     
-    public init(tasksInitializer: @escaping (Tasks) -> ()) {
+    public init(tasksInitializer: @escaping (Tasks) -> Void) {
         self.tasksInitializer = tasksInitializer
     }
     
