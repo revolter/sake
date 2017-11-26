@@ -1,6 +1,6 @@
 # Sake - Swift Make
 
-[![Build Status](https://travis-ci.org/pepibumur/sake.svg?branch=master)](https://travis-ci.org/pepibumur/sake)
+[![Build Status](https://travis-ci.org/xcodeswift/sake.svg?branch=master)](https://travis-ci.org/xcodeswift/sake)
 
 Sake is a Swift command line tool that helps you automate tasks in your projects. It's heavily inspired by [Makefile](https://en.wikipedia.org/wiki/Makefile) and [Rake](https://github.com/ruby/rake).
 
@@ -14,13 +14,13 @@ Sake aims to provide a command line tool and the foundation to automate your tas
 You can easily install rake using [Homebrew](https://brew.sh/):
 
 ```
-brew tap pepibumur/sake git@github.com:pepibumur/sake.git
+brew tap xcodeswift/sake git@github.com:xcodeswift/sake.git
 brew install sake
 ```
 
 ## Setup ⚒
 
-1. Git clone the project `git clone git@github.com:pepibumur/sake.git`.
+1. Git clone the project `git clone git@github.com:xcodeswift/sake.git`.
 2. Build `swift build`.
 
 ## Sakefile

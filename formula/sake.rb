@@ -11,5 +11,5 @@ class Sake < Formula
     def install
         system "make", "install", "PREFIX=#{prefix}"
     end
-    
+
 end

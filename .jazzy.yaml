@@ -1,0 +1,7 @@
+author: xcode.swift
+module: sake
+module_version: 0.1.0
+github_url: https://github.com/xcodeswift/sake
+copyright: 'Copyright © 2017 xcode.swift. All rights reserved.'
+readme: README.md
+documentation: guides/*.md
