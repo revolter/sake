@@ -31,13 +31,17 @@ Sakefile is the file that defines your project tasks:
 // Sakefile
 import SakefileDescription
 
-task("build", dependencies: ["clean]) {
-    // Build task
-}
-
-task("clean") {
-    // Clean task
-}
+Sake {
+    $0.task(name: "clean", description: "cleans the project build directory", action: { (_) in
+        // Cleans the build directory
+    })
+    $0.task(name: "build", description: "builds the project", dependencies: ["clean"], action: { (_) in
+        // Builds the project
+    })
+    $0.task(name: "test", description: "tests the project", dependencies: ["clean"], action: { (_) in
+        // Test the project
+    })
+}.run()
 ```
 
 ## License

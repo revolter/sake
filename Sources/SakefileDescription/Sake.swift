@@ -121,3 +121,15 @@ public extension Sake {
     }
     
 }
+
+Sake {
+    $0.task(name: "clean", description: "cleans the project build directory", action: { (_) in
+        // Cleans the build directory
+    })
+    $0.task(name: "build", description: "builds the project", dependencies: ["clean"], action: { (_) in
+        // Builds the project
+    })
+    $0.task(name: "test", description: "tests the project", dependencies: ["clean"], action: { (_) in
+        // Test the project
+    })
+}.run()
