@@ -5,16 +5,16 @@ import Foundation
 public final class Task {
 
     /// Task name.
-    fileprivate let name: String
+    let name: String
 
     /// Task description.
-    fileprivate let description: String
+    let description: String
 
     /// Task dependencies (other tasks)
-    fileprivate let dependencies: [String]
+    let dependencies: [String]
 
     /// Task action closure.
-    fileprivate let action: (Utils) throws -> ()
+    let action: (Utils) throws -> ()
 
     /// Initializes the task.
     ///
@@ -36,7 +36,7 @@ public final class Task {
 public final class Tasks {
     
     /// Tasks.
-    fileprivate var tasks: [Task] = []
+    var tasks: [Task] = []
     
     /// Adds a new task.
     ///

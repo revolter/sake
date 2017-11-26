@@ -1,15 +1,25 @@
 import Foundation
 import PathKit
+import SwiftShell
 
+/// Runs the Sakefile.
 public class RunSakefile {
     
     // MARK: - Attributes
-    
+
+    /// Path where the Sakefile.swift file is.
     let path: String
+    
+    /// Arguments to be passed.
     let arguments: [String]
     
     // MARK: - Init
     
+    /// Default constructor.
+    ///
+    /// - Parameters:
+    ///   - path: path where the Sakefile.swift file is.
+    ///   - arguments: arguments to be passed.
     public init(path: String,
                 arguments: [String]) {
         self.path = path
@@ -18,13 +28,28 @@ public class RunSakefile {
     
     // MARK: - Public
     
+    /// Executes the Sakefile.swift
+    ///
+    /// - Throws: an error if the execution fails for any reason.
     public func execute() throws {
         guard let sakefilePath = sakefilePath() else {
             throw "Couldn't find Sakefile.swift in directory \(path)"
         }
-
-        // TODO
-        
+        guard let libraryPath = libraryFolder() else {
+            throw "Couldn't find libSakefileDescription.dylib to link against to"
+        }
+        var arguments: [String] = []
+        arguments += ["--driver-mode=swift"]
+        arguments += ["-L", libraryPath.normalize().string]
+        arguments += ["-I", libraryPath.normalize().string]
+        arguments += ["-lSakefileDescription"]
+        arguments += [sakefilePath.string]
+        arguments += self.arguments
+        do {
+            try runAndPrint("swiftc", arguments)
+        } catch {
+            throw "Error running task"
+        }
     }
     
     // MARK: - Fileprivate
@@ -37,14 +62,14 @@ public class RunSakefile {
         return nil
     }
     
+    fileprivate func libraryFolder() -> Path? {
+        return [
+            ".build/debug", // Local
+            ".build/release", // Local
+            "/usr/local/lib/danger", // Homebrew
+        ].first { (potentialPath) -> Bool in
+            (Path(potentialPath) + "libSakefileDescription.dylib").exists
+        }.flatMap({Path($0)})
+    }
+    
 }
-
-
-//PATH/TO/SNAPSHOT/usr/bin/swiftc \
-//--driver-mode=swift \
-//-I PATH/TO/SNAPSHOT/usr/lib/swift/pm \
-//-L PATH/TO/SNAPSHOT/usr/lib/swift/pm \
-//-lPackageDescription \
-//PATH/TO/Package.swift \
-//-fileno 3
-
