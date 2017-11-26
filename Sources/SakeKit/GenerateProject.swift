@@ -34,13 +34,20 @@ public class GenerateProject {
         if fileManager.fileExists(atPath: projectPath.path) {
             try fileManager.removeItem(at: projectPath)
         }
+        var buildSettings: [String: Any] = [:]
+        buildSettings["PRODUCT_BUNDLE_IDENTIFIER"] = "com.sake"
+        buildSettings["LD_RUNPATH_SEARCH_PATHS"] = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx"
+        if let libraryPath = Runtime.libraryFolder() {
+            buildSettings["LD_LIBRARY_PATH"] = libraryPath
+            buildSettings["DYLD_FALLBACK_LIBRARY_PATH"] = libraryPath
+//            buildSettings["OTHER_LDFLAGS"] = "$(inherited) -ObjC -l\"libSakefileDescription\" -framework \"libSakefileDescription\""
+        }
+
         let targets: [Target] = [
             Target(name: "Sakefile",
-                   type: .staticLibrary,
+                   type: .dynamicLibrary,
                    platform: .macOS,
-                   settings: Settings(buildSettings: [
-                    "PRODUCT_BUNDLE_IDENTIFIER": "com.sake"
-                    ], configSettings: [:], groups: []),
+                   settings: Settings(buildSettings: buildSettings, configSettings: [:], groups: []),
                    configFiles: [:],
                    sources: [
                     TargetSource.init(path: "Sakefile.swift",

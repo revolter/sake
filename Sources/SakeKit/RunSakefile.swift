@@ -35,7 +35,7 @@ public class RunSakefile {
         guard let sakefilePath = sakefilePath() else {
             throw "Couldn't find Sakefile.swift in directory \(path)"
         }
-        guard let libraryPath = libraryFolder() else {
+        guard let libraryPath = Runtime.libraryFolder() else {
             throw "Couldn't find libSakefileDescription.dylib to link against to"
         }
         var arguments: [String] = []
@@ -60,16 +60,6 @@ public class RunSakefile {
             return sakefilePath
         }
         return nil
-    }
-    
-    fileprivate func libraryFolder() -> Path? {
-        return [
-            ".build/debug", // Local
-            ".build/release", // Local
-            "/usr/local/lib/danger", // Homebrew
-        ].first { (potentialPath) -> Bool in
-            (Path(potentialPath) + "libSakefileDescription.dylib").exists
-        }.flatMap({Path($0)})
     }
     
 }
