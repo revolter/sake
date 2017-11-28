@@ -4,10 +4,12 @@ import PathKit
 class Runtime {
     
     static func libraryFolder() -> Path? {
+        if let libraryPath = libraryPath {
+            return Path(libraryPath)
+        }
         return [
             ".build/debug", // Local
             ".build/release", // Local
-            "/usr/local/lib/danger" // Homebrew
             ].first { (potentialPath) -> Bool in
                 (Path(potentialPath) + "libSakefileDescription.dylib").exists
             }.flatMap({Path($0)})
