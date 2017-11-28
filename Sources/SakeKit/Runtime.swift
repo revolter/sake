@@ -2,7 +2,7 @@ import Foundation
 import PathKit
 
 class Runtime {
-    
+
     static func libraryFolder() -> Path? {
         if let libraryPath = libraryPath {
             return Path(libraryPath)
@@ -14,5 +14,5 @@ class Runtime {
                 (Path(potentialPath) + "libSakefileDescription.dylib").exists
             }.flatMap({Path($0)})
     }
-    
+
 }

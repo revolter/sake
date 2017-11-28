@@ -36,16 +36,13 @@ public class GenerateProject {
         }
         var buildSettings: [String: Any] = [:]
         buildSettings["PRODUCT_BUNDLE_IDENTIFIER"] = "com.sake"
-        buildSettings["LD_RUNPATH_SEARCH_PATHS"] = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx"
         if let libraryPath = Runtime.libraryFolder() {
-            buildSettings["LD_LIBRARY_PATH"] = libraryPath
-            buildSettings["DYLD_FALLBACK_LIBRARY_PATH"] = libraryPath
-//            buildSettings["OTHER_LDFLAGS"] = "$(inherited) -ObjC -l\"libSakefileDescription\" -framework \"libSakefileDescription\""
+            buildSettings["OTHER_SWIFT_FLAGS"] = "-swift-version 4 -I \(libraryPath.normalize().string)"
         }
 
         let targets: [Target] = [
             Target(name: "Sakefile",
-                   type: .dynamicLibrary,
+                   type: .framework,
                    platform: .macOS,
                    settings: Settings(buildSettings: buildSettings, configSettings: [:], groups: []),
                    configFiles: [:],
