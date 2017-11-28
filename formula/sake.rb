@@ -9,7 +9,15 @@ class Sake < Formula
     depends_on :xcode
 
     def install
-        system "make", "install", "PREFIX=#{prefix}"
+      sake_path = "#{buildpath}/.build/release/sake"
+      ohai "Building Sake"
+      system("swift package clean")
+      system("swift build --disable-sandbox -c release -Xswiftc -static-stdlib")
+      bin.install sake_path
+      ohai "Installing libraries"
+      lib.install "#{buildpath}/.build/release/libSakefileDescription.dylib"
+      lib.install "#{buildpath}/.build/release/SakefileDescription.swiftdoc"
+      lib.install "#{buildpath}/.build/release/SakefileDescription.swiftmodule"
     end
 
 end
