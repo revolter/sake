@@ -13,7 +13,7 @@ class Sake < Formula
     ohai "Building Sake"
     libraryPathSwiftContent = "import Foundation\n\nvar libraryPath: String? = \"#{lib}\""
     File.write("#{buildpath}/Sources/SakeKit/LibraryPath.swift", libraryPathSwiftContent)
-    system("swift build --disable-sandbox -c release -Xswiftc -static-stdlib")
+    system("swift build --disable-sandbox -c release")
     bin.install sake_path
     ohai "Installing libraries"
     lib.install "#{buildpath}/.build/release/libSakefileDescription.dylib"
