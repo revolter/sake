@@ -3,7 +3,7 @@ class Sake < Formula
   homepage "https://github.com/pepibumur/sake"
   version "0.1.0"
   url "https://github.com/pepibumur/sake/archive/#{version}.tar.gz"
-  sha256 "69b1f0595e50e0e2027ca2bad3d782cfe1dc4719670aec89961ab81c16f06755"
+  sha256 "6f97773b9cdffe633aff4c8c51302c8f495280d490a6fbb68af9bf8d18fec5c0"
   head "https://github.com/pepibumur/sake.git"
 
   depends_on :xcode
@@ -11,8 +11,7 @@ class Sake < Formula
   def install
     sake_path = "#{buildpath}/.build/release/sake"
     ohai "Building Sake"
-    system("swift package clean")
-    libraryPathSwiftContent = "import Foundation\n\nvar library: String? = \"lib\""
+    libraryPathSwiftContent = "import Foundation\n\nvar libraryPath: String? = \"#{lib}\""
     File.write("#{buildpath}/Sources/SakeKit/LibraryPath.swift", libraryPathSwiftContent)
     system("swift build --disable-sandbox -c release -Xswiftc -static-stdlib")
     bin.install sake_path
