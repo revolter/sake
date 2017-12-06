@@ -1,6 +1,6 @@
 # Sake - Swift Make
 
-![logo](Assets/logo.png)
+<img width="300" src="Assets/Logo.png"/>
 
 [![Build Status](https://travis-ci.org/xcodeswift/sake.svg?branch=master)](https://travis-ci.org/xcodeswift/sake)
 
