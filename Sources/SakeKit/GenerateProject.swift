@@ -45,15 +45,6 @@ public class GenerateProject {
         if !sakefilePath.exists {
             throw "Couldn't file a Sakefile.swift file in the current directory"
         }
-
-//        // This workaround is necessary since the command line entry point Swift file has to be main.swift
-//        // We create a main.swift file in a temporary directory that is an alias to the Sakefile.swift
-//        let tmpDirectory = Path(NSTemporaryDirectory()) + "Sake" + String.randomString()
-//        if !tmpDirectory.exists {
-//            try tmpDirectory.mkpath()
-//        }
-//        let mainSwiftPath = tmpDirectory + "main.swift"
-//        try mainSwiftPath.symlink(sakefilePath)
         
         // File references
         pbxproj.objects.addObject(PBXFileReference(reference: "FILE_REF_PRODUCT",
