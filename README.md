@@ -62,7 +62,7 @@ You can edit the `Sakefile.swift` using any text editor. Nonetheless, we recomme
 sake generate-xcodeproj
 ```
 
-> :warning Note: Xcode can only run Swift code in a `main.swift` file. Since the name of the file is `Sakefile.swift` you'll get some Xcode warnings. Ignore them!
+> :warning: Note: Xcode can only run Swift code in a `main.swift` file. Since the name of the file is `Sakefile.swift` you'll get some Xcode warnings. Ignore them!
 
 #### Tasks
 
