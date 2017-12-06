@@ -46,6 +46,39 @@ Sake {
 }.run()
 ```
 
+## Usage
+
+#### Creating a Sakefile.swift
+You can create an empty `Sakefile.swift` running the following command:
+
+```bash
+sake init
+```
+
+#### Working on the Sakefile.swift
+You can edit the `Sakefile.swift` using any text editor. Nonetheless, we recommend you to use Xcode since you'll get syntax highlighting and code autocompletion for free. Sake provides a command to generate the Xcode project where you can edit the `Sakefile.swift`. You can generate the command by running:
+
+```bash
+sake generate-xcodeproj
+```
+
+> :warning Note: Xcode can only run Swift code in a `main.swift` file. Since the name of the file is `Sakefile.swift` you'll get some Xcode warnings. Ignore them!
+
+#### Tasks
+
+##### Run a task
+
+```bash
+sake task name_of_the_task
+```
+
+##### List all the tasks
+
+```bash
+sake tasks
+```
+
+
 ## License
 
 ```
