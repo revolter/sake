@@ -41,6 +41,20 @@ public class GenerateProject {
     }
     
     fileprivate func setup(pbxproj: PBXProj) throws {
+        let sakefilePath = Path("Sakefile.swift").absolute()
+        if !sakefilePath.exists {
+            throw "Couldn't file a Sakefile.swift file in the current directory"
+        }
+
+//        // This workaround is necessary since the command line entry point Swift file has to be main.swift
+//        // We create a main.swift file in a temporary directory that is an alias to the Sakefile.swift
+//        let tmpDirectory = Path(NSTemporaryDirectory()) + "Sake" + String.randomString()
+//        if !tmpDirectory.exists {
+//            try tmpDirectory.mkpath()
+//        }
+//        let mainSwiftPath = tmpDirectory + "main.swift"
+//        try mainSwiftPath.symlink(sakefilePath)
+        
         // File references
         pbxproj.objects.addObject(PBXFileReference(reference: "FILE_REF_PRODUCT",
                                                    sourceTree: .buildProductsDir,
@@ -48,10 +62,10 @@ public class GenerateProject {
                                                    path: "Sakefile",
                                                    includeInIndex: 0))
         pbxproj.objects.addObject(PBXFileReference(reference: "FILE_REF_SAKEFILE",
-                                                   sourceTree: .group,
-                                                   name: "main.swift",
+                                                   sourceTree: .absolute,
+                                                   name: "Sakefile.swift",
                                                    lastKnownFileType: "sourcecode.swift",
-                                                   path: "Sakefile.swift"))
+                                                   path: sakefilePath.string))
         guard let libraryPath = Runtime.libraryFolder() else {
             throw "Couldn't find libSakefileDescription"
         }
