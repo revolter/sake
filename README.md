@@ -4,6 +4,22 @@
 
 [![Build Status](https://travis-ci.org/xcodeswift/sake.svg?branch=master)](https://travis-ci.org/xcodeswift/sake)
 
+<a href="https://swift.org/package-manager">
+<img src="https://img.shields.io/badge/spm-compatible-brightgreen.svg?style=flat" alt="Swift Package Manager"/>
+</a>
+<a href="https://twitter.com/xcodedotswift">
+  <img src="https://img.shields.io/badge/contact-@xcodedotswift-blue.svg?style=flat" alt="Twitter: @xcodedotswift" />
+</a>
+<a href="https://github.com/xcodeswift/sake/releases">
+  <img src="https://img.shields.io/github/release/xcodeswift/sake.svg"/>
+</a>
+<a href="https://opensource.org/licenses/MIT">
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License" />
+</a>
+<a href="http://xcodeswift.herokuapp.com/">
+  <img src="https://xcodeswift.herokuapp.com/badge.svg">
+</a>
+
 Sake is a Swift command line tool that helps you automate tasks in your projects. It's heavily inspired by [Makefile](https://en.wikipedia.org/wiki/Makefile) and [Rake](https://github.com/ruby/rake).
 
 ## Motivation 💅
