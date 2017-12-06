@@ -2,8 +2,9 @@
 
 <img width="300" src="Assets/Logo.png"/>
 
-[![Build Status](https://travis-ci.org/xcodeswift/sake.svg?branch=master)](https://travis-ci.org/xcodeswift/sake)
-
+<a href="https://travis-ci.org/xcodeswift/sake">
+<img src="https://travis-ci.org/xcodeswift/sake.svg?branch=master" alt="Travis"/>
+</a>
 <a href="https://swift.org/package-manager">
 <img src="https://img.shields.io/badge/spm-compatible-brightgreen.svg?style=flat" alt="Swift Package Manager"/>
 </a>
