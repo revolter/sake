@@ -38,6 +38,12 @@ public final class Tasks {
     /// Tasks.
     var tasks: [Task] = []
     
+    /// Hooks
+    var beforeAll: [(Utils) -> ()] = []
+    var beforeEach: [(Utils) -> ()] = []
+    var afterAll: [(Utils) -> ()] = []
+    var afterEach: [(Utils) -> ()] = []
+
     /// Adds a new task.
     ///
     /// - Parameters:
@@ -54,6 +60,34 @@ public final class Tasks {
     /// - Parameter task: task to be added.
     public func task(_ task: Task) {
         tasks.append(task)
+    }
+    
+    /// Adds a before all hook.
+    ///
+    /// - Parameter closure: closure that will be executed before all the tasks.
+    public func beforeAll(closure: @escaping (Utils) -> ()) {
+        beforeAll.append(closure)
+    }
+    
+    /// Adds a before each hook.
+    ///
+    /// - Parameter closure: closure that will be executed before each task.
+    public func beforeEach(closure: @escaping (Utils) -> ()) {
+        beforeEach.append(closure)
+    }
+    
+    /// Adds an after all hook.
+    ///
+    /// - Parameter closure: closure that will be executed after all the tasks.
+    public func afterAll(closure: @escaping (Utils) -> ()) {
+        afterAll.append(closure)
+    }
+    
+    /// Adds an after each hook.
+    ///
+    /// - Parameter closure: closure that will be executed after each task.
+    public func afterEach(closure: @escaping (Utils) -> ()) {
+        afterEach.append(closure)
     }
     
 }

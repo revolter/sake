@@ -57,9 +57,18 @@ public extension Sake {
         guard let task = tasks.tasks.first(where: {$0.name == taskName}) else {
             return
         }
-        try task.dependencies.forEach({ try run(task: $0) })
+        tasks.beforeAll.forEach({ $0(utils) })
+        defer { tasks.afterAll.forEach({ $0(utils) }) }
+        try task.dependencies.forEach({
+            print("> Running \"\($0)\"")
+            tasks.beforeEach.forEach({$0(utils)})
+            try run(task: $0)
+            tasks.afterEach.forEach({$0(utils)})
+        })
         print("> Running \"\(task.name)\"")
+        tasks.beforeEach.forEach({$0(utils)})
         try task.action(self.utils)
+        tasks.afterEach.forEach({$0(utils)})
     }
     
 }
