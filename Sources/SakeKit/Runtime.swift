@@ -9,7 +9,7 @@ class Runtime {
         }
         return [
             ".build/debug", // Local
-            ".build/release", // Local
+            ".build/release" // Local
             ].first { (potentialPath) -> Bool in
                 (Path(potentialPath) + "libSakefileDescription.dylib").exists
             }.flatMap({Path($0)})

@@ -19,7 +19,8 @@ let package = Package(
         .target(name: "SakeKit", dependencies: ["xcproj","PathKit", "SwiftShell"]),
         .target(name: "SakefileDescription", dependencies: []),
         .target(name: "sake", dependencies: ["Commander", "SakefileDescription", "SakeKit"]),
-        .testTarget(name: "SakeKitTests", dependencies: ["SakeKit"])
+        .testTarget(name: "SakeKitTests", dependencies: ["SakeKit"]),
+        .testTarget(name: "SakefileDescriptionTests", dependencies: ["SakefileDescription"]),
     ],
     swiftLanguageVersions: [4]
 )
