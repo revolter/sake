@@ -39,10 +39,10 @@ public final class Tasks {
     var tasks: [Task] = []
     
     /// Hooks
-    var beforeAll: [(Utils) -> ()] = []
-    var beforeEach: [(Utils) -> ()] = []
-    var afterAll: [(Utils) -> ()] = []
-    var afterEach: [(Utils) -> ()] = []
+    var beforeAll: [(Utils) -> Void] = []
+    var beforeEach: [(Utils) -> Void] = []
+    var afterAll: [(Utils) -> Void] = []
+    var afterEach: [(Utils) -> Void] = []
 
     /// Adds a new task.
     ///
@@ -65,28 +65,28 @@ public final class Tasks {
     /// Adds a before all hook.
     ///
     /// - Parameter closure: closure that will be executed before all the tasks.
-    public func beforeAll(closure: @escaping (Utils) -> ()) {
+    public func beforeAll(closure: @escaping (Utils) -> Void) {
         beforeAll.append(closure)
     }
     
     /// Adds a before each hook.
     ///
     /// - Parameter closure: closure that will be executed before each task.
-    public func beforeEach(closure: @escaping (Utils) -> ()) {
+    public func beforeEach(closure: @escaping (Utils) -> Void) {
         beforeEach.append(closure)
     }
     
     /// Adds an after all hook.
     ///
     /// - Parameter closure: closure that will be executed after all the tasks.
-    public func afterAll(closure: @escaping (Utils) -> ()) {
+    public func afterAll(closure: @escaping (Utils) -> Void) {
         afterAll.append(closure)
     }
     
     /// Adds an after each hook.
     ///
     /// - Parameter closure: closure that will be executed after each task.
-    public func afterEach(closure: @escaping (Utils) -> ()) {
+    public func afterEach(closure: @escaping (Utils) -> Void) {
         afterEach.append(closure)
     }
     

@@ -1,3 +1,3 @@
 import Foundation
 
-var libraryPath: String? = nil
+var libraryPath: String?

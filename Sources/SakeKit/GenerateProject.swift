@@ -39,21 +39,12 @@ public class GenerateProject {
         try setup(pbxproj: pbxproj)
         try project.write(path: Path(projectPath.path))
     }
-    
+
     fileprivate func setup(pbxproj: PBXProj) throws {
         let sakefilePath = Path("Sakefile.swift").absolute()
         if !sakefilePath.exists {
             throw "Couldn't file a Sakefile.swift file in the current directory"
         }
-
-//        // This workaround is necessary since the command line entry point Swift file has to be main.swift
-//        // We create a main.swift file in a temporary directory that is an alias to the Sakefile.swift
-//        let tmpDirectory = Path(NSTemporaryDirectory()) + "Sake" + String.randomString()
-//        if !tmpDirectory.exists {
-//            try tmpDirectory.mkpath()
-//        }
-//        let mainSwiftPath = tmpDirectory + "main.swift"
-//        try mainSwiftPath.symlink(sakefilePath)
         
         // File references
         pbxproj.objects.addObject(PBXFileReference(reference: "FILE_REF_PRODUCT",
@@ -69,14 +60,25 @@ public class GenerateProject {
         guard let libraryPath = Runtime.libraryFolder() else {
             throw "Couldn't find libSakefileDescription"
         }
+        addFileReferences(pbxproj: pbxproj, libraryPath: libraryPath)
+        addGroups(pbxproj: pbxproj)
+        addBuildFiles(pbxproj: pbxproj)
+        addBuildPhases(pbxproj: pbxproj)
+        addConfigurations(pbxproj: pbxproj, libraryPath: libraryPath)
+        addNativeTargets(pbxproj: pbxproj)
+        addProject(pbxproj: pbxproj)
+    }
+    
+    fileprivate func addFileReferences(pbxproj: PBXProj, libraryPath: Path) {
         let dylibPath = (libraryPath + "libSakefileDescription.dylib").absolute()
         pbxproj.objects.addObject(PBXFileReference(reference: "FILE_REF_LIB",
                                                    sourceTree: .absolute,
                                                    name: "libSakefileDescription.dylib",
                                                    lastKnownFileType: "compiled.mach-o.dylib",
                                                    path: dylibPath.string))
-        
-        // Groups
+    }
+    
+    fileprivate func addGroups(pbxproj: PBXProj) {
         pbxproj.objects.addObject(PBXGroup(reference: "GROUP_PRODUCTS",
                                            children: ["FILE_REF_PRODUCT"],
                                            sourceTree: .group,
@@ -89,14 +91,16 @@ public class GenerateProject {
         pbxproj.objects.addObject(PBXGroup(reference: "GROUP_MAIN",
                                            children: ["FILE_REF_SAKEFILE", "GROUP_PRODUCTS", "GROUP_FRAMEWORKS"],
                                            sourceTree: .group))
-        
-        // Build files
+    }
+    
+    fileprivate func addBuildFiles(pbxproj: PBXProj) {
         pbxproj.objects.addObject(PBXBuildFile(reference: "BUILD_FILE_SAKEFILE",
                                                fileRef: "FILE_REF_SAKEFILE"))
         pbxproj.objects.addObject(PBXBuildFile(reference: "BUILD_FILE_LIB",
                                                fileRef: "FILE_REF_LIB"))
-        
-        // Build phases
+    }
+    
+    fileprivate func addBuildPhases(pbxproj: PBXProj) {
         pbxproj.objects.addObject(PBXFrameworksBuildPhase(reference: "FRAMEWORKS_BUILD_PHASE",
                                                           files: ["BUILD_FILE_LIB"],
                                                           buildActionMask: PBXFrameworksBuildPhase.defaultBuildActionMask,
@@ -111,8 +115,9 @@ public class GenerateProject {
                                                          buildActionMask: PBXCopyFilesBuildPhase.defaultBuildActionMask,
                                                          files: [],
                                                          runOnlyForDeploymentPostprocessing: 1))
-        
-        // Configurations
+    }
+    
+    fileprivate func addConfigurations(pbxproj: PBXProj, libraryPath: Path) {
         pbxproj.objects.addObject(XCBuildConfiguration(reference: "CONFIGURATION_TARGET",
                                                        name: "Debug",
                                                        baseConfigurationReference: nil,
@@ -181,8 +186,9 @@ public class GenerateProject {
                                                       buildConfigurations: ["CONFIGURATION_TARGET"],
                                                       defaultConfigurationName: "Debug",
                                                       defaultConfigurationIsVisible: 0))
-        
-        // Native target
+    }
+    
+    fileprivate func addNativeTargets(pbxproj: PBXProj) {
         pbxproj.objects.addObject(PBXNativeTarget(reference: "NATIVE_TARGET",
                                                   name: "Sakefile",
                                                   buildConfigurationList: "CONFIGURATION_LIST_TARGET",
@@ -192,8 +198,9 @@ public class GenerateProject {
                                                   productName: "Sakefile",
                                                   productReference: "FILE_REF_PRODUCT",
                                                   productType: .commandLineTool))
-        
-        // Project
+    }
+    
+    fileprivate func addProject(pbxproj: PBXProj) {
         pbxproj.objects.addObject(PBXProject(name: "Sakefile",
                                              reference: "PROJECT",
                                              buildConfigurationList: "CONFIGURATION_LIST_PROJECT",
@@ -209,6 +216,4 @@ public class GenerateProject {
                                              targets: ["NATIVE_TARGET"],
                                              attributes: ["ORGANIZATIONNAME": "com.sake"]))
     }
-    
 }
-
