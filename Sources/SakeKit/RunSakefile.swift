@@ -35,13 +35,18 @@ public class RunSakefile {
         guard let sakefilePath = sakefilePath() else {
             throw "Couldn't find Sakefile.swift in directory \(path)"
         }
-        guard let libraryPath = Runtime.libraryFolder() else {
+        guard let filedescriptionLibraryPath = Runtime.filedescriptionLibraryPath() else {
             throw "Couldn't find libSakefileDescription.dylib to link against to"
         }
+        
         var arguments: [String] = []
         arguments += ["--driver-mode=swift"]
-        arguments += ["-L", libraryPath.normalize().string]
-        arguments += ["-I", libraryPath.normalize().string]
+        arguments += ["-L", filedescriptionLibraryPath.parent().normalize().string]
+        arguments += ["-I", filedescriptionLibraryPath.parent().normalize().string]
+        if let utilsLibraryPath = Runtime.utilsLibraryPath() {
+            arguments += ["-L", utilsLibraryPath.parent().normalize().string]
+            arguments += ["-I", utilsLibraryPath.parent().normalize().string]
+        }
         arguments += ["-lSakefileDescription"]
         arguments += [sakefilePath.string]
         arguments += self.arguments

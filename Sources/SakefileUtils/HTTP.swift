@@ -1,6 +1,5 @@
 import Foundation
-
-// MARK: - HTTP
+import SakefileDescription
 
 public  final class HTTP {
     
@@ -47,12 +46,4 @@ public  final class HTTP {
             return try JSONSerialization.jsonObject(with: data, options: [])
         }
     }
-}
-
-// MARK: - Utils
-
-public final class Utils {
-    
-    /// Synchronous HTTP client.
-    public let http: HTTP = HTTP()
 }

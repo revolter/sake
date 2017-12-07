@@ -1,3 +1,4 @@
 import Foundation
 
-var libraryPath: String?
+var librariesPath: String?
+

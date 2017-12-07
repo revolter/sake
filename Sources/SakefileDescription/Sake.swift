@@ -1,5 +1,9 @@
 import Foundation
 
+// MARK: - Utils
+
+public class Utils {}
+
 // MARK: - Sake
 
 public final class Sake {
