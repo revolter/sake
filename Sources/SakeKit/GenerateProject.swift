@@ -57,54 +57,73 @@ public class GenerateProject {
                                                    name: "Sakefile.swift",
                                                    lastKnownFileType: "sourcecode.swift",
                                                    path: sakefilePath.string))
-        guard let libraryPath = Runtime.libraryFolder() else {
+        guard let filedescriptionLibraryPath = Runtime.filedescriptionLibraryPath() else {
             throw "Couldn't find libSakefileDescription"
         }
-        addFileReferences(pbxproj: pbxproj, libraryPath: libraryPath)
-        addGroups(pbxproj: pbxproj)
-        addBuildFiles(pbxproj: pbxproj)
-        addBuildPhases(pbxproj: pbxproj)
-        addConfigurations(pbxproj: pbxproj, libraryPath: libraryPath)
+        let utilsLibraryPath = Runtime.utilsLibraryPath()
+        addFileReferences(pbxproj: pbxproj, filedescriptionLibraryPath: filedescriptionLibraryPath, utilsLibraryPath: utilsLibraryPath)
+        addGroups(pbxproj: pbxproj, withUtils: utilsLibraryPath != nil)
+        addBuildFiles(pbxproj: pbxproj, withUtils: utilsLibraryPath != nil)
+        addBuildPhases(pbxproj: pbxproj, withUtils: utilsLibraryPath != nil)
+        addConfigurations(pbxproj: pbxproj, libraryPath: filedescriptionLibraryPath.parent())
         addNativeTargets(pbxproj: pbxproj)
         addProject(pbxproj: pbxproj)
     }
     
-    fileprivate func addFileReferences(pbxproj: PBXProj, libraryPath: Path) {
-        let dylibPath = (libraryPath + "libSakefileDescription.dylib").absolute()
+    fileprivate func addFileReferences(pbxproj: PBXProj, filedescriptionLibraryPath: Path, utilsLibraryPath: Path?) {
         pbxproj.objects.addObject(PBXFileReference(reference: "FILE_REF_LIB",
                                                    sourceTree: .absolute,
-                                                   name: "libSakefileDescription.dylib",
+                                                   name: filedescriptionLibraryPath.lastComponent,
                                                    lastKnownFileType: "compiled.mach-o.dylib",
-                                                   path: dylibPath.string))
+                                                   path: filedescriptionLibraryPath.string))
+        if let utilsLibraryPath = utilsLibraryPath {
+            pbxproj.objects.addObject(PBXFileReference(reference: "FILE_REF_LIB_UTILS",
+                                                       sourceTree: .absolute,
+                                                       name: utilsLibraryPath.lastComponent,
+                                                       lastKnownFileType: "compiled.mach-o.dylib",
+                                                       path: utilsLibraryPath.string))
+        }
     }
     
-    fileprivate func addGroups(pbxproj: PBXProj) {
+    fileprivate func addGroups(pbxproj: PBXProj, withUtils: Bool) {
         pbxproj.objects.addObject(PBXGroup(reference: "GROUP_PRODUCTS",
                                            children: ["FILE_REF_PRODUCT"],
                                            sourceTree: .group,
                                            name: "Products"))
-        pbxproj.objects.addObject(PBXGroup(reference: "GROUP_FRAMEWORKS",
-                                           children: ["FILE_REF_LIB"],
-                                           sourceTree: .group,
-                                           name: "Frameworks"))
-        
         pbxproj.objects.addObject(PBXGroup(reference: "GROUP_MAIN",
                                            children: ["FILE_REF_SAKEFILE", "GROUP_PRODUCTS", "GROUP_FRAMEWORKS"],
                                            sourceTree: .group))
+        var frameworks: [String] = ["FILE_REF_LIB"]
+        if withUtils {
+            frameworks.append("FILE_REF_LIB_UTILS")
+        }
+        pbxproj.objects.addObject(PBXGroup(reference: "GROUP_FRAMEWORKS",
+                                           children: frameworks,
+                                           sourceTree: .group,
+                                           name: "Frameworks"))
     }
     
-    fileprivate func addBuildFiles(pbxproj: PBXProj) {
+    fileprivate func addBuildFiles(pbxproj: PBXProj, withUtils: Bool) {
         pbxproj.objects.addObject(PBXBuildFile(reference: "BUILD_FILE_SAKEFILE",
                                                fileRef: "FILE_REF_SAKEFILE"))
         pbxproj.objects.addObject(PBXBuildFile(reference: "BUILD_FILE_LIB",
                                                fileRef: "FILE_REF_LIB"))
+        if withUtils {
+            pbxproj.objects.addObject(PBXBuildFile(reference: "BUILD_FILE_LIB_UTILS",
+                                                   fileRef: "FILE_REF_LIB_UTILS"))
+        }
     }
     
-    fileprivate func addBuildPhases(pbxproj: PBXProj) {
+    fileprivate func addBuildPhases(pbxproj: PBXProj, withUtils: Bool) {
+        var frameworks: [String] = ["BUILD_FILE_LIB"]
+        if withUtils {
+            frameworks.append("BUILD_FILE_LIB_UTILS")
+        }
         pbxproj.objects.addObject(PBXFrameworksBuildPhase(reference: "FRAMEWORKS_BUILD_PHASE",
-                                                          files: ["BUILD_FILE_LIB"],
+                                                          files: frameworks,
                                                           buildActionMask: PBXFrameworksBuildPhase.defaultBuildActionMask,
                                                           runOnlyForDeploymentPostprocessing: 0))
+        
         pbxproj.objects.addObject(PBXSourcesBuildPhase(reference: "SOURCE_BUILD_PHASE",
                                                        files: ["BUILD_FILE_SAKEFILE"],
                                                        buildActionMask: PBXSourcesBuildPhase.defaultBuildActionMask,

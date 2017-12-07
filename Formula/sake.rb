@@ -11,7 +11,10 @@ class Sake < Formula
   def install
     sake_path = "#{buildpath}/.build/release/sake"
     ohai "Building Sake"
-    libraryPathSwiftContent = "import Foundation\n\nvar libraryPath: String? = \"#{lib}\""
+    libraryPathSwiftContent = [
+      "import Foundation",
+      "var librariesPath: String = \"#{lib}\""
+    ].join("\n") + "\n"
     File.write("#{buildpath}/Sources/SakeKit/LibraryPath.swift", libraryPathSwiftContent)
     system("swift build --disable-sandbox -c release")
     bin.install sake_path
@@ -19,6 +22,9 @@ class Sake < Formula
     lib.install "#{buildpath}/.build/release/libSakefileDescription.dylib"
     lib.install "#{buildpath}/.build/release/SakefileDescription.swiftdoc"
     lib.install "#{buildpath}/.build/release/SakefileDescription.swiftmodule"
+    lib.install "#{buildpath}/.build/release/libSakefileUtils.dylib"
+    lib.install "#{buildpath}/.build/release/SakefileUtils.swiftdoc"
+    lib.install "#{buildpath}/.build/release/SakefileUtils.swiftmodule"
   end
 
 end

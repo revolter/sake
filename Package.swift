@@ -6,6 +6,7 @@ import PackageDescription
 let package = Package(
     name: "sake",
     products: [
+        .library(name: "SakefileUtils", type: .dynamic, targets: ["SakefileUtils"]),
         .library(name: "SakefileDescription", type: .dynamic, targets: ["SakefileDescription"]),
         .executable(name: "sake", targets: ["sake"])
     ],
@@ -18,9 +19,11 @@ let package = Package(
     targets: [
         .target(name: "SakeKit", dependencies: ["xcproj","PathKit", "SwiftShell"]),
         .target(name: "SakefileDescription", dependencies: []),
+        .target(name: "SakefileUtils", dependencies: ["SakefileDescription"]),
         .target(name: "sake", dependencies: ["Commander", "SakefileDescription", "SakeKit"]),
         .testTarget(name: "SakeKitTests", dependencies: ["SakeKit"]),
         .testTarget(name: "SakefileDescriptionTests", dependencies: ["SakefileDescription"]),
+        .testTarget(name: "SakefileUtilsTests", dependencies: ["SakefileUtils"]),
     ],
     swiftLanguageVersions: [4]
 )
