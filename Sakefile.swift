@@ -1,8 +1,8 @@
 import SakefileDescription
+import SakefileUtils
 
 Sake {
-    $0.task(name: "build", description: "xxx", action: { (xxx) in
-        print("wooorks")
-        throw "xxxx"
+    $0.task(name: "build", description: "xxx", action: { (utils) in
+        print("Shakira")
     })
 }.run()
