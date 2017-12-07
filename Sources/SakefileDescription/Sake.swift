@@ -6,13 +6,13 @@ public class Utils {}
 
 // MARK: - Sake
 
-public final class Sake {
+public final class Sake<T: RawRepresentable & CustomStringConvertible> where T.RawValue == String {
     
     fileprivate let utils: Utils = Utils()
-    fileprivate let tasks: Tasks = Tasks()
-    fileprivate let tasksInitializer: (Tasks) -> Void
+    fileprivate let tasks: Tasks<T> = Tasks<T>()
+    fileprivate let tasksInitializer: (Tasks<T>) -> Void
     
-    public init(tasksInitializer: @escaping (Tasks) -> Void) {
+    public init(tasksInitializer: @escaping (Tasks<T>) -> Void) {
         self.tasksInitializer = tasksInitializer
     }
     
@@ -57,12 +57,12 @@ public extension Sake {
     
     fileprivate func printTasks() {
         print(self.tasks.tasks
-            .map({"\($0.name):      \($0.description)"})
+            .map({"\($0.key):      \($0.value.description)"})
             .joined(separator: "\n"))
     }
     
     fileprivate func runTaskAndDependencies(task taskName: String) throws {
-        guard let task = tasks.tasks.first(where: {$0.name == taskName}) else {
+        guard let task = tasks.tasks.first(where: {$0.key == taskName}).map({$0.value}) else {
             return
         }
         tasks.beforeAll.forEach({ $0(utils) })
@@ -72,13 +72,14 @@ public extension Sake {
     }
     
     fileprivate func runTask(task: String) throws {
-        guard let task = tasks.tasks.first(where: {$0.name == task}) else {
+        guard let task = tasks.tasks.first(where: {$0.key == task}) else {
             return
         }
-        print("> Running \"\(task.name)\"")
+        print("> Running \"\(task.key)\"")
         tasks.beforeEach.forEach({$0(utils)})
-        try task.action(self.utils)
+        try task.value.action(self.utils)
         tasks.afterEach.forEach({$0(utils)})
     }
     
 }
+

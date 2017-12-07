@@ -1,8 +1,18 @@
 import SakefileDescription
 import SakefileUtils
 
-Sake {
-    $0.task(name: "build", description: "xxx", action: { (utils) in
-        print("Shakira")
-    })
+enum Task: String, CustomStringConvertible {
+  case build
+  var description: String {
+    switch self {
+      case .build:
+        return "Builds the project"
+    }
+  }
+}
+
+Sake<Task> {
+  $0.task(.build) { (utils) in
+    // Here is where you define your build task
+  }
 }.run()

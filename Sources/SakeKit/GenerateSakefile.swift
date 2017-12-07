@@ -32,12 +32,22 @@ public class GenerateSakefile {
         }
         let content = """
 import SakefileDescription
+import SakefileUtils
 
-Sake {
-    $0.task(name: "task", description: "task description", action: { (_) in
-        // Implement your task
-        // You can throw errors: throw "the task did fail"
-    })
+enum Task: String, CustomStringConvertible {
+  case build
+  var description: String {
+    switch self {
+      case .build:
+        return "Builds the project"
+    }
+  }
+}
+
+Sake<Task> {
+  $0.task(.build) { (utils) in
+    // Here is where you define your build task
+  }
 }.run()
 """
         try content.write(to: sakefilePath, atomically: true, encoding: .utf8)

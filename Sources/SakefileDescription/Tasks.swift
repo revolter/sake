@@ -2,10 +2,7 @@ import Foundation
 
 // MARK: - Task
 
-public final class Task {
-
-    /// Task name.
-    let name: String
+public final class Task   {
 
     /// Task description.
     let description: String
@@ -19,24 +16,23 @@ public final class Task {
     /// Initializes the task.
     ///
     /// - Parameters:
-    ///   - name: task name.
     ///   - description: task description.
     ///   - dependencies: task dependencies.
     ///   - action: action closure.
-    init(name: String, description: String, dependencies: [String] = [], action: @escaping (Utils) throws -> Void) {
-        self.name = name
+    init(description: String, dependencies: [String] = [], action: @escaping (Utils) throws -> Void) {
         self.description = description
         self.dependencies = dependencies
         self.action = action
     }
+    
 }
 
 // MARK: - Tasks
 
-public final class Tasks {
+public final class Tasks<T: RawRepresentable & CustomStringConvertible> where T.RawValue == String {
     
     /// Tasks.
-    var tasks: [Task] = []
+    var tasks: [String: Task] = [:]
     
     /// Hooks
     var beforeAll: [(Utils) -> Void] = []
@@ -51,15 +47,15 @@ public final class Tasks {
     ///   - description: task description.
     ///   - dependencies: task dependencies.
     ///   - action: task action.
-    public func task(name: String, description: String, dependencies: [String] = [], action: @escaping (Utils) throws -> Void) {
-        tasks.append(Task(name: name, description: description, dependencies: dependencies, action: action))
+    public func task(_ type: T, dependencies: [T] = [], action: @escaping (Utils) throws -> Void) {
+        tasks[type.rawValue] = Task(description: type.description, dependencies: dependencies.map({$0.rawValue}), action: action)
     }
     
     /// Adds a new task.
     ///
     /// - Parameter task: task to be added.
-    public func task(_ task: Task) {
-        tasks.append(task)
+    public func task(_ type: T, task: Task) {
+        tasks[type.rawValue] = task
     }
     
     /// Adds a before all hook.
