@@ -27,7 +27,7 @@ public class GenerateProject {
     /// Generates the Xcode project.
     ///
     /// - Throws: error if the generation fails.
-    public func execute() throws {
+    public func execute(write: (XcodeProj, Path) throws -> Void = { try $0.write(path: $1) } ) throws {
         let projectPath = URL.init(fileURLWithPath: path).appendingPathComponent("Sakefile.xcodeproj")
         if fileManager.fileExists(atPath: projectPath.path) {
             try fileManager.removeItem(at: projectPath)
@@ -37,7 +37,7 @@ public class GenerateProject {
         let pbxproj = PBXProj(objectVersion: 48, rootObject: "PROJECT")
         let project = XcodeProj(workspace: workspace, pbxproj: pbxproj)
         try setup(pbxproj: pbxproj)
-        try project.write(path: Path(projectPath.path))
+        try write(project, Path(projectPath.path))
     }
 
     fileprivate func setup(pbxproj: PBXProj) throws {
