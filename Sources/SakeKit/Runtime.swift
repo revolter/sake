@@ -3,25 +3,25 @@ import PathKit
 
 class Runtime {
 
-    static func filedescriptionLibraryPath() -> Path? {
+    static func filedescriptionLibraryPath(exists: (Path) -> Bool = { $0.exists }) -> Path? {
         if let librariesPath = librariesPath,
-            (Path(librariesPath) + "libSakefileDescription.dylib").exists {
+            exists(Path(librariesPath) + "libSakefileDescription.dylib") {
             return Path(librariesPath) + "libSakefileDescription.dylib"
         }
         return Runtime.librariesFolders()
             .first { (potentialPath) -> Bool in
-                (Path(potentialPath) + "libSakefileDescription.dylib").exists
+                exists(Path(potentialPath) + "libSakefileDescription.dylib")
             }.flatMap({ (Path($0)  + "libSakefileDescription.dylib").absolute() })
     }
     
-    static func utilsLibraryPath() -> Path? {
+    static func utilsLibraryPath(exists: (Path) -> Bool = { $0.exists }) -> Path? {
         if let librariesPath = librariesPath,
-            (Path(librariesPath) + "libSakefileUtils.dylib").exists {
+            exists(Path(librariesPath) + "libSakefileUtils.dylib") {
             return Path(librariesPath) + "libSakefileUtils.dylib"
         }
         return Runtime.librariesFolders()
             .first { (potentialPath) -> Bool in
-                (Path(potentialPath) + "libSakefileUtils.dylib").exists
+                exists(Path(potentialPath) + "libSakefileUtils.dylib")
             }.flatMap({ (Path($0) + "libSakefileUtils.dylib").absolute() })
     }
     
