@@ -46,8 +46,10 @@ public class RunSakefile {
         if let utilsLibraryPath = Runtime.utilsLibraryPath() {
             arguments += ["-L", utilsLibraryPath.parent().normalize().string]
             arguments += ["-I", utilsLibraryPath.parent().normalize().string]
+            arguments += ["-lSakefileUtils"]
+        } else {
+            arguments += ["-lSakefileDescription"]
         }
-        arguments += ["-lSakefileDescription"]
         arguments += [sakefilePath.string]
         arguments += self.arguments
         do {
