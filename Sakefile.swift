@@ -21,7 +21,7 @@ func anyGitChanges() -> Bool {
 
 Sake<Task> {
     $0.task(.documentation) { (utils) in
-        _ = utils.shell.run(command: "swift", "build")
+        _ = try utils.shell.run(command: "swift", "build")
     }
 }.run()
 

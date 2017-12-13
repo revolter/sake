@@ -27,18 +27,18 @@ public final class Git {
     
     public func commitAll(message: String) throws  {
         try verifyGitDirectory()
-        shell.run(command: "git add .")
-        shell.run(command: "git commit -m \(message)")
+        try shell.run(command: "git add .")
+        try shell.run(command: "git commit -m \(message)")
     }
     
     public func addRemote(_ remote: String, url: String) throws {
         try verifyGitDirectory()
-        shell.run(command: "git remote add \(remote) \(url)")
+        try shell.run(command: "git remote add \(remote) \(url)")
     }
     
     public func removeRemote(_ remote: String) throws {
         try verifyGitDirectory()
-        shell.run(command: "git remote remove \(remote)")
+        try shell.run(command: "git remote remove \(remote)")
     }
     
     // MARK: - Fileprivate
