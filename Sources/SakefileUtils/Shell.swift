@@ -61,11 +61,13 @@ public final class Shell: Shelling {
         let launchPath: String
         let arguments: [String]
         let process = Process()
+        let environment: [String: String]
         
-        public init(launchPath: String, arguments: [String], outputStream: StandardOutOutputStream = StandardOutOutputStream()) {
+        public init(launchPath: String, arguments: [String], environment: [String: String] = [:], outputStream: StandardOutOutputStream = StandardOutOutputStream()) {
             self.launchPath = launchPath
             self.arguments = arguments
             self.outputStream = outputStream
+            self.environment = environment
         }
         
         public func execute() -> (String, Int32) {
@@ -75,6 +77,7 @@ public final class Shell: Shelling {
             process.standardOutput = pipe
             process.standardError = pipe
             process.standardInput = inputPipe
+            process.environment = environment
             process.launch()
             process.waitUntilExit()
             let output = String(data: outputStream.data, encoding: .utf8) ?? ""
@@ -143,6 +146,7 @@ public final class Shell: Shelling {
         }
         let result = CommandExecutor(launchPath: launchpath(command),
                                      arguments: args,
+                                     environment: environment,
                                      outputStream: StandardOutOutputStream(printing: printing)).execute()
         if result.1 == 0 {
             return .success(result.0)
