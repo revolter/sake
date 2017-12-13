@@ -35,16 +35,17 @@ public final class Shell: Shelling {
     
     /// Created by Martin Kim Dung-Pham - github.com/q231950/commands ///
     class StandardOutOutputStream: OutputStream {
-        var lastLine: String = ""
         var printing: Bool
+        var data: Data = Data()
+        
         init(printing: Bool = true) {
             self.printing = printing
             super.init(toMemory: ())
         }
         override func write(_ buffer: UnsafePointer<UInt8>, maxLength len: Int) -> Int {
             let data = Data.init(bytes: buffer, count: len)
+            self.data.append(data)
             let text = String(data: data, encoding: .utf8)
-            lastLine = text?.replacingOccurrences(of: "\n", with: "") ?? ""
             if printing {
                 print("\(text ?? "")")
             }
@@ -76,8 +77,17 @@ public final class Shell: Shelling {
             process.standardInput = inputPipe
             process.launch()
             process.waitUntilExit()
-            
-            return (outputStream.lastLine, process.terminationStatus)
+            let output = String(data: outputStream.data, encoding: .utf8) ?? ""
+            return (clean(output: output), process.terminationStatus)
+        }
+        
+        fileprivate func clean(output: String) -> String {
+            var output = output
+            let firstnewline = output.index(of: "\n")
+            if firstnewline == nil || output.index(after: firstnewline!) == output.endIndex {
+                output = output.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+            return output
         }
         
         private func outputStreamWritingPipe() -> Pipe {
