@@ -40,6 +40,21 @@ public final class Git {
         try shell.runAndPrint(bash: "git remote remove \(remote)")
     }
     
+    public func tag(_ tag: String) throws {
+        try verifyGitDirectory()
+        try shell.runAndPrint(bash: "git tag \(tag)")
+    }
+    
+    public func removeTag(_ tag: String) throws {
+        try verifyGitDirectory()
+        try shell.runAndPrint(bash: "git tag -d \(tag)")
+    }
+    
+    public func tags() throws -> [String] {
+        try verifyGitDirectory()
+        return try shell.run(bash: "git tag --list").split(separator: "\n").map(String.init)
+    }
+    
     // MARK: - Fileprivate
     
     fileprivate func verifyGitDirectory() throws {

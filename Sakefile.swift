@@ -21,7 +21,7 @@ func anyGitChanges() -> Bool {
 
 Sake<Task> {
     $0.task(.documentation) { (utils) in
-        try utils.git.commitAll(message: "Add bash command to shell")
+        try print(utils.git.tags())
     }
 }.run()
 
