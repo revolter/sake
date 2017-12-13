@@ -69,8 +69,6 @@ class StandardOutOutputStream: OutputStream {
         }
         return len
     }
-    
-    override func close() {}
 }
 
 // MARK: - Shell
@@ -78,21 +76,38 @@ class StandardOutOutputStream: OutputStream {
 public final class Shell: Shelling {
     
     /// Created by Martin Kim Dung-Pham - github.com/q231950/commands ///
-    
     class CommandExecutor {
-        
+    
+        /// Output stream.
         private let outputStream: StandardOutOutputStream
+        
+        /// Input pipe.
         private let inputPipe = Pipe()
+        
+        /// Launch path.
         let launchPath: String
+        
+        /// Arguments.
         let arguments: [String]
+        
+        /// Process.
         let process = Process()
         
+        /// Initializes the CommandExecutor.
+        ///
+        /// - Parameters:
+        ///   - launchPath: launch path.
+        ///   - arguments: arguments.
+        ///   - outputStream: output stream.
         public init(launchPath: String, arguments: [String], outputStream: StandardOutOutputStream = StandardOutOutputStream()) {
             self.launchPath = launchPath
             self.arguments = arguments
             self.outputStream = outputStream
         }
         
+        /// Executes the command.
+        ///
+        /// - Returns: output string and exit code.
         public func execute() -> (output: String?, exitCode: Int32) {
             process.launchPath = launchPath
             process.arguments = arguments
@@ -109,6 +124,10 @@ public final class Shell: Shelling {
             return (output: output.map(clean), exitCode: process.terminationStatus)
         }
         
+        /// Cleans the command output trimming whitespaces and newlines.
+        ///
+        /// - Parameter output: output to be cleaned.
+        /// - Returns: cleaned output.
         fileprivate func clean(output: String) -> String {
             var output = output
             let firstnewline = output.index(of: "\n")
@@ -118,6 +137,9 @@ public final class Shell: Shelling {
             return output
         }
         
+        /// It returns the pipe to send the output through.
+        ///
+        /// - Returns: pipe to be used as the output pipe for the process.
         private func outputStreamWritingPipe() -> Pipe {
             let outputPipe = Pipe()
             outputPipe.fileHandleForReading.readabilityHandler = { [weak self] handle in
@@ -128,19 +150,10 @@ public final class Shell: Shelling {
             }
             return outputPipe
         }
-        
-        func write(input: String) {
-            if let data = "\(input)\n".data(using: .utf8) {
-                inputPipe.fileHandleForWriting.write(data)
-            }
-        }
-        
-        func terminate() {
-            process.terminate()
-        }
-        
     }
     /// Created by Martin Kim Dung-Pham - github.com/q231950/commands ///
+    
+    // MARK: - Shelling
     
     public func runAndPrint(command: String, _ args: String...) throws {
         try runAndPrint(command: command, args)
