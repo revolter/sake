@@ -22,6 +22,8 @@ public struct ShellError: Error, CustomStringConvertible {
 // MARK: - Shelling
 
 public protocol Shelling {
+    func runAndPrint(bash: String) throws
+    func run(bash: String) throws -> String
     func runAndPrint(command: String, _ args: String...) throws
     func runAndPrint(command: String, _ args: [String]) throws
     @discardableResult func run(command: String, _ args: String...) throws -> String
@@ -155,12 +157,23 @@ public final class Shell: Shelling {
     
     // MARK: - Shelling
     
+    public func runAndPrint(bash: String) throws {
+        try runAndPrint(command: "/bin/bash", "-c", bash)
+    }
+    
+    public func run(bash: String) throws -> String {
+        return try run(command: "/bin/bash", "-c", bash)
+    }
+    
     public func runAndPrint(command: String, _ args: String...) throws {
         try runAndPrint(command: command, args)
     }
     
     public func runAndPrint(command: String, _ args: [String]) throws {
-        try execute(command: command, printing: true, output: false, args)
+        let result = execute(command: command, printing: true, output: false, args)
+        if result.exitCode != 0 {
+            throw ShellError(exitCode: result.exitCode)
+        }
     }
     
     public func run(command: String, _ args: String...) throws -> String {
@@ -168,7 +181,7 @@ public final class Shell: Shelling {
     }
     
     public func run(command: String, _ args: [String]) throws -> String {
-        let result = try execute(command: command, printing: false, output: true, args)
+        let result = execute(command: command, printing: false, output: true, args)
         if result.exitCode == 0 {
             return result.output ?? ""
         } else {
@@ -178,7 +191,7 @@ public final class Shell: Shelling {
     
     // MARK: - Fileprivate
     
-    @discardableResult fileprivate func execute(command: String, printing: Bool, output: Bool, _ args: [String]) throws -> (output: String?, exitCode: Int32) {
+    @discardableResult fileprivate func execute(command: String, printing: Bool, output: Bool, _ args: [String]) -> (output: String?, exitCode: Int32) {
         func launchpath(_ command: String) -> String {
             if command.contains("/") { return command }
             let outputStream = StandardOutOutputStream(printing: false, output: true)

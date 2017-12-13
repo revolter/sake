@@ -16,28 +16,28 @@ public final class Git {
     
     public func branch() throws -> String {
         try verifyGitDirectory()
-        return try shell.run(command: "git", "rev-parse", "--abbrev-ref HEAD")
+        return try shell.run(bash: "git rev-parse --abbrev-ref HEAD")
     }
     
     public func anyChanges() throws -> Bool {
         try verifyGitDirectory()
-        return false
+        let changesCount = try shell.run(bash: "git diff --stat --numstat | wc -l")
+        return Int(changesCount) != 0
     }
-    
     public func commitAll(message: String) throws  {
         try verifyGitDirectory()
-        try shell.runAndPrint(command: "git", "add", ".")
-        try shell.runAndPrint(command: "git", "commit", "-m '\(message)'")
+        try shell.runAndPrint(bash: "git add .")
+        try shell.runAndPrint(bash: "git commit -m '\(message)'")
     }
     
     public func addRemote(_ remote: String, url: String) throws {
         try verifyGitDirectory()
-        try shell.run(command: "git remote add \(remote) \(url)")
+        try shell.runAndPrint(bash: "git remote add \(remote) \(url)")
     }
     
     public func removeRemote(_ remote: String) throws {
         try verifyGitDirectory()
-        try shell.run(command: "git remote remove \(remote)")
+        try shell.runAndPrint(bash: "git remote remove \(remote)")
     }
     
     // MARK: - Fileprivate
