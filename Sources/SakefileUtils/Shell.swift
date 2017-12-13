@@ -33,6 +33,77 @@ public protocol Shelling {
 
 public final class Shell: Shelling {
     
+    /// Created by Martin Kim Dung-Pham - github.com/q231950/commands ///
+    class StandardOutOutputStream: OutputStream {
+        var lastLine: String = ""
+        var printing: Bool
+        init(printing: Bool = true) {
+            self.printing = printing
+            super.init(toMemory: ())
+        }
+        override func write(_ buffer: UnsafePointer<UInt8>, maxLength len: Int) -> Int {
+            let data = Data.init(bytes: buffer, count: len)
+            let text = String(data: data, encoding: .utf8)
+            lastLine = text?.replacingOccurrences(of: "\n", with: "") ?? ""
+            if printing {
+                print("\(text ?? "")")
+            }
+            return len
+        }
+        override func close() {}
+    }
+    
+    class CommandExecutor {
+        
+        private let outputStream: StandardOutOutputStream
+        private let inputPipe = Pipe()
+        let launchPath: String
+        let arguments: [String]
+        let process = Process()
+        
+        public init(launchPath: String, arguments: [String], outputStream: StandardOutOutputStream = StandardOutOutputStream()) {
+            self.launchPath = launchPath
+            self.arguments = arguments
+            self.outputStream = outputStream
+        }
+        
+        public func execute() -> (String, Int32) {
+            process.launchPath = launchPath
+            process.arguments = arguments
+            let pipe = outputStreamWritingPipe()
+            process.standardOutput = pipe
+            process.standardError = pipe
+            process.standardInput = inputPipe
+            process.launch()
+            process.waitUntilExit()
+            
+            return (outputStream.lastLine, process.terminationStatus)
+        }
+        
+        private func outputStreamWritingPipe() -> Pipe {
+            let outputPipe = Pipe()
+            outputPipe.fileHandleForReading.readabilityHandler = { [weak self] handle in
+                let data = handle.availableData
+                if data.count > 0 {
+                    _ = self?.outputStream.write([UInt8](data), maxLength: data.count)
+                }
+            }
+            return outputPipe
+        }
+        
+        public func write(input: String) {
+            if let data = "\(input)\n".data(using: .utf8) {
+                inputPipe.fileHandleForWriting.write(data)
+            }
+        }
+        
+        public func terminate() {
+            process.terminate()
+        }
+    }
+    /// Created by Martin Kim Dung-Pham - github.com/q231950/commands ///
+    
+    
     public func run(command: String, _ args: String...) -> ShellResult {
         return run(command: command, environment: [:], printing: true, args)
     }
@@ -44,36 +115,30 @@ public final class Shell: Shelling {
     public func run(command: String, printing: Bool, _ args: String...) -> ShellResult {
         return run(command: command, environment: [:], printing: printing, args)
     }
-
+    
     public func run(command: String, environment: [String: String], printing: Bool, _ args: String...) -> ShellResult {
         return run(command: command, environment: environment, printing: printing, args)
     }
     
     public func run(command: String, environment: [String: String], printing: Bool, _ args: [String]) -> ShellResult {
-        let process = Process()
-        process.environment = environment
-        process.launchPath = "/Users/pedro.pinera.buendia/.swiftenv/shims/swift"
-        process.arguments = ["\(args.joined(separator: " "))"]
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        process.standardInput = FileHandle.nullDevice
-        if printing {
-            pipe.fileHandleForReading.readabilityHandler = { pipe in
-                if let line = String(data: pipe.availableData, encoding: .utf8) {
-                    print(line)
-                }
+        func launchpath(_ command: String) -> String {
+            if command.contains("/") {
+                return command
+            } else {
+                let result = CommandExecutor(launchPath: "/usr/bin/which",
+                                             arguments: [command],
+                                             outputStream: StandardOutOutputStream(printing: false)).execute()
+                return result.0
             }
         }
-        process.launch()
-        process.waitUntilExit()
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        let output: String = String(data: data, encoding: .utf8)!
-        if process.terminationStatus == 0 {
-            return .success(output)
+        let result = CommandExecutor(launchPath: launchpath(command),
+                                     arguments: args,
+                                     outputStream: StandardOutOutputStream(printing: printing)).execute()
+        if result.1 == 0 {
+            return .success(result.0)
         } else {
-            return .failure(process.terminationStatus)
+            return .failure(result.1)
         }
     }
-
-
+    
 }
