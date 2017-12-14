@@ -6,7 +6,7 @@ import SwiftShell
 public class RunSakefile {
     
     // MARK: - Attributes
-
+    
     /// Path where the Sakefile.swift file is.
     let path: String
     
@@ -16,6 +16,15 @@ public class RunSakefile {
     /// Verbose
     let verbose: Bool
     
+    /// Run bash command.
+    let runBashCommand: (String) throws -> ()
+    
+    /// Returns the Sakefile.swift path if it exists in the given directory.
+    let sakefilePath: (Path) -> Path?
+    
+    /// Returns the file description library path.
+    let fileDescriptionLibraryPath: () -> Path?
+    
     // MARK: - Init
     
     /// Default constructor.
@@ -24,12 +33,33 @@ public class RunSakefile {
     ///   - path: path where the Sakefile.swift file is.
     ///   - arguments: arguments to be passed.
     ///   - verbose: if it should print logs verbosely.
-    public init(path: String,
-                arguments: [String],
-                verbose: Bool) {
+    convenience public init(path: String,
+                            arguments: [String],
+                            verbose: Bool) {
+        self.init(path: path, arguments: arguments, verbose: verbose)
+    }
+    
+    /// Default constructor.
+    ///
+    /// - Parameters:
+    ///   - path: path where the Sakefile.swift file is.
+    ///   - arguments: arguments to be passed.
+    ///   - verbose: if it should print logs verbosely.
+    ///   - sakefilePath: returns the Sakefile.swift path if it exists in the given directory.
+    ///   - fileDescriptionLibraryPath: returns the file description library path.
+    ///   - runBashCommand: closure runs the bash command.
+    init(path: String,
+         arguments: [String],
+         verbose: Bool,
+         sakefilePath: @escaping (Path) -> Path? = RunSakefile.sakefilePath,
+         fileDescriptionLibraryPath: @escaping () -> Path? = { Runtime.filedescriptionLibraryPath() },
+         runBashCommand: @escaping (String) throws -> Void = { try runAndPrint(bash: $0) }) {
         self.path = path
         self.arguments = arguments
         self.verbose = verbose
+        self.sakefilePath = sakefilePath
+        self.fileDescriptionLibraryPath = fileDescriptionLibraryPath
+        self.runBashCommand = runBashCommand
     }
     
     // MARK: - Public
@@ -38,10 +68,10 @@ public class RunSakefile {
     ///
     /// - Throws: an error if the execution fails for any reason.
     public func execute() throws {
-        guard let sakefilePath = sakefilePath() else {
+        guard let sakefilePath = sakefilePath(Path(path)) else {
             throw "Couldn't find Sakefile.swift in directory \(path)"
         }
-        guard let filedescriptionLibraryPath = Runtime.filedescriptionLibraryPath() else {
+        guard let filedescriptionLibraryPath = fileDescriptionLibraryPath() else {
             throw "Couldn't find libSakefileDescription.dylib to link against to"
         }
         
@@ -63,7 +93,7 @@ public class RunSakefile {
             if !verbose {
                 bashCommand = "exec 2>/dev/null; \(bashCommand)"
             }
-            try runAndPrint(bash: bashCommand)
+            try runBashCommand(bashCommand)
         } catch {
             throw "Error processing your Sakefile.swift. Use --verbose to get more details about the problem."
         }
@@ -71,8 +101,8 @@ public class RunSakefile {
     
     // MARK: - Fileprivate
     
-    fileprivate func sakefilePath() -> Path? {
-        let sakefilePath = (Path(path) + "Sakefile.swift").normalize()
+    static func sakefilePath(path: Path) -> Path? {
+        let sakefilePath = (path + "Sakefile.swift").normalize()
         if sakefilePath.exists {
             return sakefilePath
         }
