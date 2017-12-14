@@ -87,7 +87,60 @@ final class  ShellCommandExecutorTests: XCTestCase {
     }
 }
 
-
 final class ShellTests: XCTestCase {
     
+    var subject: Shelling!
+    var commands: [(String, [String], Bool, Bool)]!
+    
+    override func setUp() {
+        super.setUp()
+        commands = []
+        subject = Shell { (launchPath, arguments, printing, output) -> ShellCommandExecutor.ShellOutput in
+            self.commands.append((launchPath, arguments, printing, output))
+            return (output: "test", exitCode: 0)
+        }
+    }
+    
+    func test_runAndPrintBash_runsTheRightCommands() throws {
+        try subject.runAndPrint(bash: "git init")
+        assertCommands(expected: [
+                ("/bin/bash", ["-c", "git init"], true, false)
+            ])
+    }
+    func test_runBash_runsTheRightCommands() throws {
+        try subject.run(bash: "git init")
+        assertCommands(expected: [
+            ("/bin/bash", ["-c", "git init"], false, true)
+            ])
+    }
+    
+    func test_runCommand_runsTheRightCommands() throws {
+        try subject.run(command: "swift", "build")
+        assertCommands(expected: [
+            ("/user/bin/which", ["swift"], false, true),
+            ("test", ["build"], false, true)
+            ])
+    }
+    
+    func test_runAndPrintCommand_runsTheRightCommands() throws {
+        try subject.runAndPrint(command: "swift", "build")
+        assertCommands(expected: [
+            ("/user/bin/which", ["swift"], false, true),
+            ("test", ["build"], true, false)
+            ])
+    }
+    
+    func assertCommands(expected: [(String, [String], Bool, Bool)]) {
+        XCTAssertEqual(commands.count, expected.count)
+        if commands.count != expected.count { return }
+        var count: Int = 0
+        commands.forEach { (gotCommand) in
+            let expectedCommand = expected[count]
+            XCTAssertEqual(gotCommand.0, expectedCommand.0)
+            XCTAssertEqual(gotCommand.1, expectedCommand.1)
+            XCTAssertEqual(gotCommand.2, expectedCommand.2)
+            XCTAssertEqual(gotCommand.3, expectedCommand.3)
+            count += 1
+        }
+    }
 }

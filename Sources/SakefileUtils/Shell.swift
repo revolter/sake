@@ -23,7 +23,7 @@ public struct ShellError: Error, CustomStringConvertible {
 
 public protocol Shelling {
     func runAndPrint(bash: String) throws
-    func run(bash: String) throws -> String
+    @discardableResult func run(bash: String) throws -> String
     func runAndPrint(command: String, _ args: String...) throws
     func runAndPrint(command: String, _ args: [String]) throws
     @discardableResult func run(command: String, _ args: String...) throws -> String
@@ -165,6 +165,18 @@ class ShellCommandExecutor {
 
 public final class Shell: Shelling {
     
+    typealias Execute = (_ launchPath: String, _ arguments: [String], _ printing: Bool, _ output: Bool) -> ShellCommandExecutor.ShellOutput
+    
+    // MARK: - Attributes
+    
+    fileprivate let execute: Execute
+    
+    // MARK: - Init
+    
+    init(execute: @escaping Execute = Shell.execute) {
+        self.execute = execute
+    }
+    
     // MARK: - Shelling
     
     public func runAndPrint(bash: String) throws {
@@ -201,18 +213,25 @@ public final class Shell: Shelling {
     
     // MARK: - Fileprivate
     
-    @discardableResult fileprivate func execute(command: String, printing: Bool, output: Bool, _ args: [String]) -> (output: String?, exitCode: Int32) {
+    @discardableResult fileprivate func execute(command: String,
+                                                printing: Bool,
+                                                output: Bool,
+                                                _ args: [String]) -> ShellCommandExecutor.ShellOutput {
         func launchpath(_ command: String) -> String {
             if command.contains("/") { return command }
-            let outputStream = StandardOutOutputStream(printing: false, output: true)
-            let result = ShellCommandExecutor(launchPath: "/usr/bin/which",
-                                         arguments: [command],
-                                         outputStream: outputStream).execute()
+            let result = execute("/user/bin/which", [command], false, true)
             return result.output ?? command
         }
-        return ShellCommandExecutor(launchPath: launchpath(command),
-                               arguments: args,
-                               outputStream: StandardOutOutputStream(printing: printing, output: output)).execute()
+        return execute(launchpath(command), args, printing, output)
+    }
+    
+    fileprivate static func execute(launchPath: String,
+                                    arguments: [String],
+                                    printing: Bool,
+                                    output: Bool) -> ShellCommandExecutor.ShellOutput {
+        return ShellCommandExecutor(launchPath: launchPath,
+                                    arguments: arguments,
+                                    outputStream: StandardOutOutputStream(printing: printing, output: output)).execute()
     }
 
 }
