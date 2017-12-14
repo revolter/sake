@@ -14,5 +14,4 @@
  - Testing support.
  - Official Homebrew formula.
  - More utils.
- - Better compilation error handling
 */

@@ -12,14 +12,39 @@ public class GenerateProject {
     
     /// File manager.
     fileprivate let fileManager: FileManager = .default
+
+    /// Project writer.
+    fileprivate let write: (XcodeProj, Path) throws -> Void
+    
+    /// File description path.
+    fileprivate let filedescriptionLibraryPath: () -> Path?
+    
+    /// Sakefile path.
+    fileprivate let sakefilePath: () -> Path?
     
     // MARK: - Init
     
     /// Initializes the command with the path to the folder where the Sakefile.swift is.
     ///
     /// - Parameter path: path to the folder where the Sakefile.swift file is.
-    public init(path: String) {
+    convenience public init(path: String) {
+        self.init(path: path,
+                  write: { try $0.write(path: $1) },
+                  filedescriptionLibraryPath: { Runtime.filedescriptionLibraryPath() },
+                  sakefilePath: {
+                    let path = Path("Sakefile.swift").absolute()
+                    return path.exists ? path : nil
+        })
+    }
+    
+    init(path: String,
+         write: @escaping (XcodeProj, Path) throws -> Void,
+         filedescriptionLibraryPath: @escaping () -> Path?,
+         sakefilePath: @escaping () -> Path?) {
         self.path = path
+        self.write = write
+        self.filedescriptionLibraryPath = filedescriptionLibraryPath
+        self.sakefilePath = sakefilePath
     }
     
     // MARK: - Public
@@ -27,7 +52,7 @@ public class GenerateProject {
     /// Generates the Xcode project.
     ///
     /// - Throws: error if the generation fails.
-    public func execute(write: (XcodeProj, Path) throws -> Void = { try $0.write(path: $1) } ) throws {
+    public func execute() throws {
         let projectPath = URL.init(fileURLWithPath: path).appendingPathComponent("Sakefile.xcodeproj")
         if fileManager.fileExists(atPath: projectPath.path) {
             try fileManager.removeItem(at: projectPath)
@@ -41,11 +66,10 @@ public class GenerateProject {
     }
 
     fileprivate func setup(pbxproj: PBXProj) throws {
-        let sakefilePath = Path("Sakefile.swift").absolute()
-        if !sakefilePath.exists {
+        guard let sakefilePath = sakefilePath() else {
             throw "Couldn't file a Sakefile.swift file in the current directory"
         }
-        guard let filedescriptionLibraryPath = Runtime.filedescriptionLibraryPath() else {
+        guard let filedescriptionLibraryPath = filedescriptionLibraryPath() else {
             throw "Couldn't find libSakefileDescription"
         }
         pbxproj.objects.addObject(PBXFileReference(reference: "FILE_REF_PRODUCT",
