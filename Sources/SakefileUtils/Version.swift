@@ -8,7 +8,7 @@ public enum VersionError: Error {
 }
 
 /// Semantic version
-public struct Version: CustomStringConvertible {
+public struct Version: CustomStringConvertible, Equatable {
 
     // MARK: - Attributes
 
@@ -27,7 +27,7 @@ public struct Version: CustomStringConvertible {
             return uint
         }
         major = components[0]
-        minor = (components.count == 2) ? components[1] : 0
+        minor = (components.count >= 2) ? components[1] : 0
         patch = (components.count == 3) ? components[2] : 0
     }
     
@@ -47,16 +47,24 @@ public struct Version: CustomStringConvertible {
         return self.string
     }
     
-    public func bumpMajor() -> Version {
+    public func bumpingMajor() -> Version {
         return Version(major: major + 1, minor: 0, patch: 0)
     }
     
-    public func bumpMinor() -> Version {
+    public func bumpingMinor() -> Version {
         return Version(major: major, minor: minor+1, patch: 0)
     }
     
-    public func bumpPatch() -> Version {
+    public func bumpingPatch() -> Version {
         return Version(major: major, minor: minor, patch: patch+1)
+    }
+    
+    // MARK: - Equatable
+    
+    public static func ==(lhs: Version, rhs: Version) -> Bool {
+        return lhs.major == rhs.major &&
+        lhs.minor == rhs.minor &&
+        lhs.patch == rhs.patch
     }
     
 }
