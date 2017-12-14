@@ -61,28 +61,28 @@ public final class Tasks<T: RawRepresentable & CustomStringConvertible> where T.
     /// Adds a before all hook.
     ///
     /// - Parameter closure: closure that will be executed before all the tasks.
-    public func beforeAll(closure: @escaping (Utils) -> Void) {
+    public func beforeAll(_ closure: @escaping (Utils) -> Void) {
         beforeAll.append(closure)
     }
     
     /// Adds a before each hook.
     ///
     /// - Parameter closure: closure that will be executed before each task.
-    public func beforeEach(closure: @escaping (Utils) -> Void) {
+    public func beforeEach(_ closure: @escaping (Utils) -> Void) {
         beforeEach.append(closure)
     }
     
     /// Adds an after all hook.
     ///
     /// - Parameter closure: closure that will be executed after all the tasks.
-    public func afterAll(closure: @escaping (Utils) -> Void) {
+    public func afterAll(_ closure: @escaping (Utils) -> Void) {
         afterAll.append(closure)
     }
     
     /// Adds an after each hook.
     ///
     /// - Parameter closure: closure that will be executed after each task.
-    public func afterEach(closure: @escaping (Utils) -> Void) {
+    public func afterEach(_ closure: @escaping (Utils) -> Void) {
         afterEach.append(closure)
     }
     

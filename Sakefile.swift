@@ -20,8 +20,11 @@ func anyGitChanges() -> Bool {
 }
 
 Sake<Task> {
+    $0.beforeEach { (_) in
+        print("Before")
+    }
     $0.task(.documentation) { (utils) in
-        fatalError("xxx")
+        print("Done")
     }
 }.run()
 

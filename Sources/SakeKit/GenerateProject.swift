@@ -45,8 +45,9 @@ public class GenerateProject {
         if !sakefilePath.exists {
             throw "Couldn't file a Sakefile.swift file in the current directory"
         }
-        
-        // File references
+        guard let filedescriptionLibraryPath = Runtime.filedescriptionLibraryPath() else {
+            throw "Couldn't find libSakefileDescription"
+        }
         pbxproj.objects.addObject(PBXFileReference(reference: "FILE_REF_PRODUCT",
                                                    sourceTree: .buildProductsDir,
                                                    explicitFileType: "compiled.mach-o.executable",
@@ -57,9 +58,6 @@ public class GenerateProject {
                                                    name: "Sakefile.swift",
                                                    lastKnownFileType: "sourcecode.swift",
                                                    path: sakefilePath.string))
-        guard let filedescriptionLibraryPath = Runtime.filedescriptionLibraryPath() else {
-            throw "Couldn't find libSakefileDescription"
-        }
         let utilsLibraryPath = Runtime.utilsLibraryPath()
         addFileReferences(pbxproj: pbxproj, filedescriptionLibraryPath: filedescriptionLibraryPath, utilsLibraryPath: utilsLibraryPath)
         addGroups(pbxproj: pbxproj, withUtils: utilsLibraryPath != nil)

@@ -36,7 +36,12 @@ public class RunSakefile {
     convenience public init(path: String,
                             arguments: [String],
                             verbose: Bool) {
-        self.init(path: path, arguments: arguments, verbose: verbose)
+        self.init(path: path,
+                  arguments: arguments,
+                  verbose: verbose,
+                  sakefilePath: RunSakefile.sakefilePath,
+                  fileDescriptionLibraryPath: { Runtime.filedescriptionLibraryPath() },
+                  runBashCommand: { try runAndPrint(bash: $0) })
     }
     
     /// Default constructor.
@@ -51,9 +56,9 @@ public class RunSakefile {
     init(path: String,
          arguments: [String],
          verbose: Bool,
-         sakefilePath: @escaping (Path) -> Path? = RunSakefile.sakefilePath,
-         fileDescriptionLibraryPath: @escaping () -> Path? = { Runtime.filedescriptionLibraryPath() },
-         runBashCommand: @escaping (String) throws -> Void = { try runAndPrint(bash: $0) }) {
+         sakefilePath: @escaping (Path) -> Path?,
+         fileDescriptionLibraryPath: @escaping () -> Path?,
+         runBashCommand: @escaping (String) throws -> Void) {
         self.path = path
         self.arguments = arguments
         self.verbose = verbose
