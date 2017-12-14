@@ -109,9 +109,6 @@ The Swift code written in the `Sakefile.swift` file should meet the following gu
 - Code should be synchronous and tasks should be completed by the time the closre execution ends.
 
 
-
-
-
 ## License
 
 ```
