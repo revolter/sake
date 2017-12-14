@@ -68,16 +68,16 @@ Sake<Task> {
 }.run()
 ```
 
-## Usage
+## Usage 👩🏻‍💻
 
-#### Creating a Sakefile.swift
+#### Creating a Sakefile.swift 📝
 You can create an empty `Sakefile.swift` running the following command:
 
 ```bash
 sake init
 ```
 
-#### Working on the Sakefile.swift
+#### Working on the Sakefile.swift 💼
 You can edit the `Sakefile.swift` using any text editor. Nonetheless, we recommend you to use Xcode since you'll get syntax highlighting and code autocompletion for free. Sake provides a command to generate the Xcode project where you can edit the `Sakefile.swift`. You can generate the command by running:
 
 ```bash
@@ -86,7 +86,7 @@ sake generate-xcodeproj
 
 > :warning: Note: Xcode can only run Swift code in a `main.swift` file. Since the name of the file is `Sakefile.swift` you'll get some Xcode warnings. Ignore them!
 
-#### Tasks
+#### Tasks ✅
 
 ##### Run a task
 
@@ -99,6 +99,17 @@ sake task name_of_the_task
 ```bash
 sake tasks
 ```
+
+## Sakefile Guidelines 🎨
+
+The Swift code written in the `Sakefile.swift` file should meet the following guidelines:
+
+- It shouldn't fail the execution either using `fatalError` or force unwrapping nil values. Failing the execution causes the tool to print the stack trace in the console. Instead throw errors that are handled by `Sake` and nicely printed into th console.
+
+- Code should be synchronous and tasks should be completed by the time the closre execution ends.
+
+
+
 
 
 ## License
