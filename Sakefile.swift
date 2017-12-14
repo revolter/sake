@@ -21,7 +21,7 @@ func anyGitChanges() -> Bool {
 
 Sake<Task> {
     $0.task(.documentation) { (utils) in
-        try print(utils.git.tags())
+        fatalError("xxx")
     }
 }.run()
 

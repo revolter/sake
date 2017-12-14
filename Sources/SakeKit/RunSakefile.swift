@@ -13,6 +13,9 @@ public class RunSakefile {
     /// Arguments to be passed.
     let arguments: [String]
     
+    /// Verbose
+    let verbose: Bool
+    
     // MARK: - Init
     
     /// Default constructor.
@@ -20,10 +23,13 @@ public class RunSakefile {
     /// - Parameters:
     ///   - path: path where the Sakefile.swift file is.
     ///   - arguments: arguments to be passed.
+    ///   - verbose: if it should print logs verbosely.
     public init(path: String,
-                arguments: [String]) {
+                arguments: [String],
+                verbose: Bool) {
         self.path = path
         self.arguments = arguments
+        self.verbose = verbose
     }
     
     // MARK: - Public
@@ -53,9 +59,13 @@ public class RunSakefile {
         arguments += [sakefilePath.string]
         arguments += self.arguments
         do {
-            try runAndPrint("swiftc", arguments)
+            var bashCommand = "swiftc \(arguments.joined(separator: " "))"
+            if !verbose {
+                bashCommand = "exec 2>/dev/null; \(bashCommand)"
+            }
+            try runAndPrint(bash: bashCommand)
         } catch {
-            throw "Error running task"
+            throw "Error processing your Sakefile.swift. Use --verbose to get more details about the problem."
         }
     }
     
