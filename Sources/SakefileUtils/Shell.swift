@@ -35,22 +35,26 @@ public protocol Shelling {
 class StandardOutOutputStream: OutputStream {
     
     /// True if the stream prints the output in the console (line by line)
-    var printing: Bool
+    let printing: Bool
     
     /// True if the output from the stream has to be saved.
-    var output: Bool
+    let output: Bool
     
     /// Output data.
     var data: Data = Data()
+    
+    /// Function that the stream uses to print the written data.
+    let printer: (String) -> ()
     
     /// Initializes the StandardOutputStream with its attributes.
     ///
     /// - Parameters:
     ///   - printing: true if the output of the command execution should be printed in real time.
     ///   - output: true if the output of the script should be kept in memory.
-    init(printing: Bool = true, output: Bool = false) {
+    init(printing: Bool = true, output: Bool = false, printer: @escaping (String) -> () = { print($0) }) {
         self.printing = printing
         self.output = output
+        self.printer = printer
         super.init(toMemory: ())
     }
     
@@ -67,7 +71,7 @@ class StandardOutOutputStream: OutputStream {
         }
         let text = String(data: data, encoding: .utf8)
         if printing {
-            print("\(text ?? "")")
+            self.printer("\(text ?? "")")
         }
         return len
     }
@@ -81,10 +85,10 @@ public final class Shell: Shelling {
     class CommandExecutor {
     
         /// Output stream.
-        private let outputStream: StandardOutOutputStream
+        let outputStream: StandardOutOutputStream
         
         /// Input pipe.
-        private let inputPipe = Pipe()
+        let inputPipe = Pipe()
         
         /// Launch path.
         let launchPath: String
@@ -101,7 +105,7 @@ public final class Shell: Shelling {
         ///   - launchPath: launch path.
         ///   - arguments: arguments.
         ///   - outputStream: output stream.
-        public init(launchPath: String, arguments: [String], outputStream: StandardOutOutputStream = StandardOutOutputStream()) {
+        init(launchPath: String, arguments: [String], outputStream: StandardOutOutputStream = StandardOutOutputStream()) {
             self.launchPath = launchPath
             self.arguments = arguments
             self.outputStream = outputStream
@@ -110,7 +114,7 @@ public final class Shell: Shelling {
         /// Executes the command.
         ///
         /// - Returns: output string and exit code.
-        public func execute() -> (output: String?, exitCode: Int32) {
+        func execute() -> (output: String?, exitCode: Int32) {
             process.launchPath = launchPath
             process.arguments = arguments
             let pipe = outputStreamWritingPipe()
@@ -130,7 +134,7 @@ public final class Shell: Shelling {
         ///
         /// - Parameter output: output to be cleaned.
         /// - Returns: cleaned output.
-        fileprivate func clean(output: String) -> String {
+        func clean(output: String) -> String {
             var output = output
             let firstnewline = output.index(of: "\n")
             if firstnewline == nil || output.index(after: firstnewline!) == output.endIndex {
@@ -142,7 +146,7 @@ public final class Shell: Shelling {
         /// It returns the pipe to send the output through.
         ///
         /// - Returns: pipe to be used as the output pipe for the process.
-        private func outputStreamWritingPipe() -> Pipe {
+        func outputStreamWritingPipe() -> Pipe {
             let outputPipe = Pipe()
             outputPipe.fileHandleForReading.readabilityHandler = { [weak self] handle in
                 let data = handle.availableData
