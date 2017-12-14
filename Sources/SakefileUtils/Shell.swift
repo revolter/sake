@@ -77,87 +77,93 @@ class StandardOutOutputStream: OutputStream {
     }
 }
 
+// MARK: - ShellCommandExecutor
+
+class ShellCommandExecutor {
+    
+    typealias ShellOutput = (output: String?, exitCode: Int32)
+    typealias ProcessLauncher = (Process, StandardOutOutputStream) -> ShellOutput
+    
+    /// Output stream.
+    let outputStream: StandardOutOutputStream
+    
+    /// Process.
+    let process: Process
+    
+    /// Launcher
+    let launcher: ProcessLauncher
+    
+    /// Initializes the CommandExecutor.
+    ///
+    /// - Parameters:
+    ///   - launchPath: launch path.
+    ///   - arguments: arguments.
+    ///   - outputStream: output stream.
+    init(launchPath: String,
+         arguments: [String],
+         outputStream: StandardOutOutputStream = StandardOutOutputStream(),
+         launcher: @escaping ProcessLauncher = ShellCommandExecutor.launch) {
+        self.outputStream = outputStream
+        self.process = Process()
+        self.process.launchPath = launchPath
+        self.process.standardInput = Pipe()
+        self.process.arguments = arguments
+        let pipe = ShellCommandExecutor.outputStreamWritingPipe(outputStream: outputStream)
+        process.standardOutput = pipe
+        process.standardError = pipe
+        self.launcher = launcher
+    }
+    
+    /// Executes the command.
+    ///
+    /// - Returns: output string and exit code.
+    func execute() -> ShellOutput {
+        let result = launcher(process, outputStream)
+        return (output: result.output.map(ShellCommandExecutor.clean), exitCode: result.exitCode)
+    }
+    
+    /// Cleans the command output trimming whitespaces and newlines.
+    ///
+    /// - Parameter output: output to be cleaned.
+    /// - Returns: cleaned output.
+    static func clean(output: String) -> String {
+        var output = output
+        let firstnewline = output.index(of: "\n")
+        if firstnewline == nil || output.index(after: firstnewline!) == output.endIndex {
+            output = output.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return output
+    }
+    
+    /// It returns the pipe to send the output through.
+    ///
+    /// - Returns: pipe to be used as the output pipe for the process.
+    static func outputStreamWritingPipe(outputStream: OutputStream) -> Pipe {
+        let outputPipe = Pipe()
+        outputPipe.fileHandleForReading.readabilityHandler = { handle in
+            let data = handle.availableData
+            if data.count > 0 {
+                _ = outputStream.write([UInt8](data), maxLength: data.count)
+            }
+        }
+        return outputPipe
+    }
+    
+    static func launch(process: Process, outputStream: StandardOutOutputStream) -> ShellOutput {
+        process.launch()
+        process.waitUntilExit()
+        var output: String?
+        if outputStream.output {
+            output = String(data: outputStream.data, encoding: .utf8) ?? ""
+        }
+        return (output: output, exitCode: process.terminationStatus)
+    }
+    
+}
+
 // MARK: - Shell
 
 public final class Shell: Shelling {
-    
-    /// Created by Martin Kim Dung-Pham - github.com/q231950/commands ///
-    class CommandExecutor {
-    
-        /// Output stream.
-        let outputStream: StandardOutOutputStream
-        
-        /// Input pipe.
-        let inputPipe = Pipe()
-        
-        /// Launch path.
-        let launchPath: String
-        
-        /// Arguments.
-        let arguments: [String]
-        
-        /// Process.
-        let process = Process()
-        
-        /// Initializes the CommandExecutor.
-        ///
-        /// - Parameters:
-        ///   - launchPath: launch path.
-        ///   - arguments: arguments.
-        ///   - outputStream: output stream.
-        init(launchPath: String, arguments: [String], outputStream: StandardOutOutputStream = StandardOutOutputStream()) {
-            self.launchPath = launchPath
-            self.arguments = arguments
-            self.outputStream = outputStream
-        }
-        
-        /// Executes the command.
-        ///
-        /// - Returns: output string and exit code.
-        func execute() -> (output: String?, exitCode: Int32) {
-            process.launchPath = launchPath
-            process.arguments = arguments
-            let pipe = outputStreamWritingPipe()
-            process.standardOutput = pipe
-            process.standardError = pipe
-            process.standardInput = inputPipe
-            process.launch()
-            process.waitUntilExit()
-            var output: String?
-            if outputStream.output {
-                output = String(data: outputStream.data, encoding: .utf8) ?? ""
-            }
-            return (output: output.map(clean), exitCode: process.terminationStatus)
-        }
-        
-        /// Cleans the command output trimming whitespaces and newlines.
-        ///
-        /// - Parameter output: output to be cleaned.
-        /// - Returns: cleaned output.
-        func clean(output: String) -> String {
-            var output = output
-            let firstnewline = output.index(of: "\n")
-            if firstnewline == nil || output.index(after: firstnewline!) == output.endIndex {
-                output = output.trimmingCharacters(in: .whitespacesAndNewlines)
-            }
-            return output
-        }
-        
-        /// It returns the pipe to send the output through.
-        ///
-        /// - Returns: pipe to be used as the output pipe for the process.
-        func outputStreamWritingPipe() -> Pipe {
-            let outputPipe = Pipe()
-            outputPipe.fileHandleForReading.readabilityHandler = { [weak self] handle in
-                let data = handle.availableData
-                if data.count > 0 {
-                    _ = self?.outputStream.write([UInt8](data), maxLength: data.count)
-                }
-            }
-            return outputPipe
-        }
-    }
-    /// Created by Martin Kim Dung-Pham - github.com/q231950/commands ///
     
     // MARK: - Shelling
     
@@ -199,12 +205,12 @@ public final class Shell: Shelling {
         func launchpath(_ command: String) -> String {
             if command.contains("/") { return command }
             let outputStream = StandardOutOutputStream(printing: false, output: true)
-            let result = CommandExecutor(launchPath: "/usr/bin/which",
+            let result = ShellCommandExecutor(launchPath: "/usr/bin/which",
                                          arguments: [command],
                                          outputStream: outputStream).execute()
             return result.output ?? command
         }
-        return CommandExecutor(launchPath: launchpath(command),
+        return ShellCommandExecutor(launchPath: launchpath(command),
                                arguments: args,
                                outputStream: StandardOutOutputStream(printing: printing, output: output)).execute()
     }

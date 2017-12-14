@@ -48,6 +48,46 @@ final class StandardOutOutputStreamTests: XCTestCase {
     
 }
 
+final class  ShellCommandExecutorTests: XCTestCase {
+    
+    var subject: ShellCommandExecutor!
+    var launchedProcess: Process!
+    var result: ShellCommandExecutor.ShellOutput!
+    
+    override func setUp() {
+        super.setUp()
+        let outputStream = StandardOutOutputStream(printing: false,
+                                                   output: true)
+        subject = ShellCommandExecutor(launchPath: "/bin/sh",
+                                       arguments: ["arg1", "arg2"],
+                                       outputStream: outputStream) { (process, outputStream) -> (output: String?, exitCode: Int32) in
+                                        self.launchedProcess = process
+                                        return (output: "abc\n", exitCode: 32)
+        }
+        result = subject.execute()
+    }
+    
+    func test_it_propagatesTheExitCode() {
+        XCTAssertEqual(result.exitCode, 32)
+    }
+    
+    func test_itCleansLineBreaksFromTheOutput() {
+        XCTAssertEqual(result.output, "abc")
+    }
+    
+    func test_itUsesTheRightLaunchPath() {
+        XCTAssertEqual(launchedProcess.launchPath, "/bin/sh")
+    }
+    
+    func test_itUsesTheRightArguments() {
+        XCTAssertNotNil(launchedProcess.arguments)
+        if let arguments = launchedProcess.arguments {
+            XCTAssertEqual(arguments, ["arg1", "arg2"])
+        }
+    }
+}
+
+
 final class ShellTests: XCTestCase {
     
 }
