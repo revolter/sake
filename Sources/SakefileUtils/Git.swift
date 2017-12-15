@@ -27,6 +27,12 @@ public final class Git {
         let changesCount = try shell.run(bash: "git diff --stat --numstat | wc -l")
         return Int(changesCount) != 0
     }
+    
+    public func commit(message: String) throws {
+        try verifyGit()
+        try shell.runAndPrint(bash: "git commit -m '\(message)'")
+    }
+    
     public func commitAll(message: String) throws  {
         try verifyGit()
         try shell.runAndPrint(bash: "git add .")
@@ -48,6 +54,11 @@ public final class Git {
         try shell.runAndPrint(bash: "git tag \(tag)")
     }
     
+    public func lastTag() throws -> String {
+        try verifyGit()
+        return try shell.run(bash: "git describe --abbrev=0 --tags")
+    }
+    
     public func removeTag(_ tag: String) throws {
         try verifyGit()
         try shell.runAndPrint(bash: "git tag -d \(tag)")
@@ -56,6 +67,28 @@ public final class Git {
     public func tags() throws -> [String] {
         try verifyGit()
         return try shell.run(bash: "git tag --list").split(separator: "\n").map(String.init)
+    }
+    
+    public func add(paths: String...) throws {
+        try verifyGit()
+        try shell.runAndPrint(bash: "git add \(paths.joined(separator: " "))")
+    }
+    
+    public func addAll() throws {
+        try verifyGit()
+        try shell.runAndPrint(bash: "git add .")
+    }
+    
+    public func push(remote: String, branch: String, tags: Bool = false) throws {
+        try verifyGit()
+        var command = "git push \(remote) \(branch)"
+        if tags { command.append(" --tags") }
+        try shell.runAndPrint(bash: command)
+    }
+    
+    public func createBranch(_ name: String) throws {
+        try verifyGit()
+        try shell.runAndPrint(bash: "git checkout -b \(name)")
     }
     
     // MARK: - Fileprivate
