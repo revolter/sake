@@ -19,6 +19,9 @@ public class GenerateProject {
     /// File description path.
     fileprivate let filedescriptionLibraryPath: () -> Path?
     
+    /// Utils library path.
+    fileprivate let utilsLibraryPath: () -> Path?
+    
     /// Sakefile path.
     fileprivate let sakefilePath: () -> Path?
     
@@ -31,6 +34,7 @@ public class GenerateProject {
         self.init(path: path,
                   write: { try $0.write(path: $1) },
                   filedescriptionLibraryPath: { Runtime.filedescriptionLibraryPath() },
+                  utilsLibraryPath: { Runtime.utilsLibraryPath() },
                   sakefilePath: {
                     let path = Path("Sakefile.swift").absolute()
                     return path.exists ? path : nil
@@ -40,10 +44,12 @@ public class GenerateProject {
     init(path: String,
          write: @escaping (XcodeProj, Path) throws -> Void,
          filedescriptionLibraryPath: @escaping () -> Path?,
+         utilsLibraryPath: @escaping () -> Path?,
          sakefilePath: @escaping () -> Path?) {
         self.path = path
         self.write = write
         self.filedescriptionLibraryPath = filedescriptionLibraryPath
+        self.utilsLibraryPath = utilsLibraryPath
         self.sakefilePath = sakefilePath
     }
     
@@ -72,6 +78,23 @@ public class GenerateProject {
         guard let filedescriptionLibraryPath = filedescriptionLibraryPath() else {
             throw "Couldn't find libSakefileDescription"
         }
+        let utilsLibraryPath = self.utilsLibraryPath()
+        addFileReferences(pbxproj: pbxproj,
+                          filedescriptionLibraryPath: filedescriptionLibraryPath,
+                          utilsLibraryPath: utilsLibraryPath,
+                          sakefilePath: sakefilePath)
+        addGroups(pbxproj: pbxproj, withUtils: utilsLibraryPath != nil)
+        addBuildFiles(pbxproj: pbxproj, withUtils: utilsLibraryPath != nil)
+        addBuildPhases(pbxproj: pbxproj, withUtils: utilsLibraryPath != nil)
+        addConfigurations(pbxproj: pbxproj, libraryPath: filedescriptionLibraryPath.parent())
+        addNativeTargets(pbxproj: pbxproj)
+        addProject(pbxproj: pbxproj)
+    }
+    
+    fileprivate func addFileReferences(pbxproj: PBXProj,
+                                       filedescriptionLibraryPath: Path,
+                                       utilsLibraryPath: Path?,
+                                       sakefilePath: Path) {
         pbxproj.objects.addObject(PBXFileReference(reference: "FILE_REF_PRODUCT",
                                                    sourceTree: .buildProductsDir,
                                                    explicitFileType: "compiled.mach-o.executable",
@@ -82,17 +105,6 @@ public class GenerateProject {
                                                    name: "Sakefile.swift",
                                                    lastKnownFileType: "sourcecode.swift",
                                                    path: sakefilePath.string))
-        let utilsLibraryPath = Runtime.utilsLibraryPath()
-        addFileReferences(pbxproj: pbxproj, filedescriptionLibraryPath: filedescriptionLibraryPath, utilsLibraryPath: utilsLibraryPath)
-        addGroups(pbxproj: pbxproj, withUtils: utilsLibraryPath != nil)
-        addBuildFiles(pbxproj: pbxproj, withUtils: utilsLibraryPath != nil)
-        addBuildPhases(pbxproj: pbxproj, withUtils: utilsLibraryPath != nil)
-        addConfigurations(pbxproj: pbxproj, libraryPath: filedescriptionLibraryPath.parent())
-        addNativeTargets(pbxproj: pbxproj)
-        addProject(pbxproj: pbxproj)
-    }
-    
-    fileprivate func addFileReferences(pbxproj: PBXProj, filedescriptionLibraryPath: Path, utilsLibraryPath: Path?) {
         pbxproj.objects.addObject(PBXFileReference(reference: "FILE_REF_LIB",
                                                    sourceTree: .absolute,
                                                    name: filedescriptionLibraryPath.lastComponent,
