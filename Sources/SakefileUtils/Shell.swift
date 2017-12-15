@@ -84,7 +84,7 @@ class StandardOutOutputStream: OutputStream {
         }
         let text = String(data: data, encoding: .utf8)
         if printing {
-            self.printer(clean(output: "\( ?? "")"))
+            self.printer(clean(output: "\(text ?? "")"))
         }
         return len
     }
