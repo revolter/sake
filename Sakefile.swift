@@ -7,7 +7,6 @@ import SakefileUtils
 enum Task: String, CustomStringConvertible {
     case documentation = "docs"
     case continuousIntegration = "ci"
-    case clean = "clean"
     case release = "release"
     case updateFormula = "update_formula"
     var description: String {
@@ -16,8 +15,6 @@ enum Task: String, CustomStringConvertible {
             return "Generates the project documentation"
         case .continuousIntegration:
             return "Runs the the operations that are executed on CI"
-        case .clean:
-            return "Clean the project built data"
         case .release:
             return "Releases a new version of the Sake"
         case .updateFormula:
@@ -46,15 +43,15 @@ func createVersion(version: String, branch: String, utils: Utils) throws {
 func updateFormula(version: String, branch: String, utils: Utils) throws {
     let formulaPath = "Formula/sake.rb"
     print("> Updating formula to \(version)")
-    let archiveURL = "https://github.com/xcodeswift/sake/archive/\(version)/.tar.gz"
+    let archiveURL = "https://github.com/xcodeswift/sake/archive/\(version).tar.gz"
     try utils.shell.runAndPrint(bash: "curl -LSs \(archiveURL) -o sake.tar.gz")
-    let sha = try utils.shell.run(bash: "shasum -a 256 sake.tar.gz | awk '{printf $1}")
+    let sha = try utils.shell.run(bash: "shasum -a 256 sake.tar.gz | awk '{printf $1}'")
     _ = try utils.shell.run(bash: "sed -i \"\" 's|version .*$|version \"\(version)\"|' \(formulaPath)")
     _ = try utils.shell.run(bash: "sed -i \"\" 's|sha256 .*$|sha256 \"\(sha)\"|' \(formulaPath)")
     try utils.shell.runAndPrint(bash: "rm sake.tar.gz")
     print("> Commiting and pushing the changes to release/\(version)")
-    try utils.git.add(paths: "Formula/sake.rb")
-    try utils.git.commit(message: "[release/\(version)] Update formula")
+    try utils.git.add(paths: formulaPath)
+    try utils.git.commit(message: "[\(branch)] Update formula")
     try utils.git.push(remote: "origin", branch: branch)
 }
 
@@ -62,11 +59,7 @@ Sake<Task> {
     $0.task(.documentation) { (utils) in
         try generateDocs(utils: utils)
     }
-    $0.task(.clean) { (utils) in
-        print("> Cleaning .build/ folder")
-        try utils.shell.runAndPrint(bash: "rm -rf .build")
-    }
-    $0.task(.continuousIntegration, dependencies: [.clean]) { utils in
+    $0.task(.continuousIntegration) { utils in
         print("> Linting the project")
         try utils.shell.runAndPrint(bash: "swiftlint")
         print("> Building the project")
@@ -74,13 +67,13 @@ Sake<Task> {
         print("> Testing the project")
         try utils.shell.runAndPrint(bash: "swift test")
     }
-    $0.task(.release, dependencies: [.clean]) { (utils) in
+    $0.task(.release) { (utils) in
         if try utils.git.anyChanges() { throw "Commit all your changes before starting the release" }
         if try utils.git.branch() != "master" { throw "The release process should be initialized from master" }
         let nextVersion = try Version(utils.git.lastTag()).bumpingMinor()
         let branch = "release/\(nextVersion.string)"
         try createVersion(version: nextVersion.string, branch: branch, utils: utils)
-        try updateFormula(version: nextVersion.string, branch: branch, utils: utils)
+        try updateFormula(version: nextVersion, branch: branch, utils: utils)
     }
 }.run()
 

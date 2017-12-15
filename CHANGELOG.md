@@ -1,6 +1,9 @@
 🚀 Check out the guidelines [here](https://github.com/xcodeswift/contributors/blob/master/CHANGELOG_GUIDELINES.md)
 
-## 0.1.0 - (next version)
+## Next version
+
+
+## 0.2.0
 
 ### Added
 - Extract utils into a separate library https://github.com/xcodeswift/sake/pull/10 by @pepibumur.
