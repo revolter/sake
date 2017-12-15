@@ -1,9 +1,9 @@
 class Sake < Formula
   desc "Automate tasks with Swift"
   homepage "https://github.com/pepibumur/sake"
-  version "0.1.0"
+  version "0.2.0"
   url "https://github.com/pepibumur/sake/archive/#{version}.tar.gz"
-  sha256 "4d7fca39addffe79d978132ee98c758736477ae27957f00b52cdc514f8c91c2b"
+  sha256 "36486d21ce07e55247f454cce5022a38f4b00c97703d31bf1879db91ed202d48"
   head "https://github.com/pepibumur/sake.git"
 
   depends_on :xcode
