@@ -5,13 +5,21 @@ import XCTest
 
 final class SakeTests: XCTestCase {
     
+    enum Task: String, CustomStringConvertible {
+        case a
+        case b
+        var description: String {
+           return self.rawValue
+        }
+    }
+    
     func test_run_runsEverythingInTheRightOrder() {
         var executionOutputs: [String] = []
-        let subject = Sake {
-            $0.task(name: "a", description: "desc", dependencies: ["b"]) { (_) in
+        let subject = Sake<Task> {
+            $0.task(.a, dependencies: [.b]) { (_) in
                 executionOutputs.append("a")
             }
-            $0.task(name: "b", description: "desc") { (_) in
+            $0.task(.b) { (_) in
                 executionOutputs.append("b")
             }
             $0.beforeEach { (_) in
