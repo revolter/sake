@@ -15,7 +15,6 @@ class Sake < Formula
       "import Foundation",
       "var librariesPath: String? = \"#{lib}\""
     ].join("\n") + "\n"
-    puts(buildPath)
     File.write("#{buildpath}/Sources/SakeKit/LibraryPath.swift", libraryPathSwiftContent)
     system("swift build --disable-sandbox -c release")
     bin.install sake_path
