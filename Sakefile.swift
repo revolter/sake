@@ -73,7 +73,7 @@ Sake<Task> {
         let nextVersion = try Version(utils.git.lastTag()).bumpingMinor()
         let branch = "release/\(nextVersion.string)"
         try createVersion(version: nextVersion.string, branch: branch, utils: utils)
-        try updateFormula(version: nextVersion, branch: branch, utils: utils)
+        try updateFormula(version: nextVersion.string, branch: branch, utils: utils)
     }
 }.run()
 
