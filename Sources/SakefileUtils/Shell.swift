@@ -30,6 +30,19 @@ public protocol Shelling {
     @discardableResult func run(command: String, _ args: [String]) throws -> String
 }
 
+/// Cleans the command output trimming whitespaces and newlines.
+///
+/// - Parameter output: output to be cleaned.
+/// - Returns: cleaned output.
+func clean(output: String) -> String {
+    var output = output
+    let firstnewline = output.index(of: "\n")
+    if firstnewline == nil || output.index(after: firstnewline!) == output.endIndex {
+        output = output.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    return output
+}
+
 // MARK: - StandardOutputStream
 
 class StandardOutOutputStream: OutputStream {
@@ -71,7 +84,7 @@ class StandardOutOutputStream: OutputStream {
         }
         let text = String(data: data, encoding: .utf8)
         if printing {
-            self.printer("\(text ?? "")")
+            self.printer(clean(output: "\( ?? "")"))
         }
         return len
     }
@@ -119,20 +132,7 @@ class ShellCommandExecutor {
     /// - Returns: output string and exit code.
     func execute() -> ShellOutput {
         let result = launcher(process, outputStream)
-        return (output: result.output.map(ShellCommandExecutor.clean), exitCode: result.exitCode)
-    }
-    
-    /// Cleans the command output trimming whitespaces and newlines.
-    ///
-    /// - Parameter output: output to be cleaned.
-    /// - Returns: cleaned output.
-    static func clean(output: String) -> String {
-        var output = output
-        let firstnewline = output.index(of: "\n")
-        if firstnewline == nil || output.index(after: firstnewline!) == output.endIndex {
-            output = output.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-        return output
+        return (output: result.output.map(clean), exitCode: result.exitCode)
     }
     
     /// It returns the pipe to send the output through.
