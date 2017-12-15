@@ -28,7 +28,7 @@ enum Task: String, CustomStringConvertible {
 
 func generateDocs(utils: Utils) throws {
     try utils.shell.runAndPrint(bash: "swift package generate-xcodeproj")
-    try utils.shell.runAndPrint(bash: "jazzy --clean --sdk macosx --xcodebuild-arguments -scheme,sake --skip-undocumented --no-download-badge")
+    try utils.shell.runAndPrint(bash: "bundle exec jazzy --clean --sdk macosx --xcodebuild-arguments -scheme,sake --skip-undocumented")
 }
 
 func createVersion(version: String, branch: String, utils: Utils) throws {
