@@ -3,7 +3,7 @@ class Sake < Formula
   homepage "https://github.com/pepibumur/sake"
   version "0.2.0"
   url "https://github.com/pepibumur/sake/archive/#{version}.tar.gz"
-  sha256 "36486d21ce07e55247f454cce5022a38f4b00c97703d31bf1879db91ed202d48"
+  sha256 "257e35297b42aed9f7369e9ffd0e7e86a9068a41af993810868993d793b76ac3"
   head "https://github.com/pepibumur/sake.git"
 
   depends_on :xcode
