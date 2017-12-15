@@ -36,7 +36,7 @@ func createVersion(version: String, branch: String, utils: Utils) throws {
     print("> Building the project")
     try utils.shell.runAndPrint(bash: "swift build")
     print("> Generating docs")
-    generateDocs(utils: utils)
+    try generateDocs(utils: utils)
     try utils.git.addAll()
     try utils.git.commitAll(message: "[\(branch)] Bump version")
     try utils.git.tag(version)
@@ -60,7 +60,7 @@ func updateFormula(version: String, branch: String, utils: Utils) throws {
 
 Sake<Task> {
     $0.task(.documentation) { (utils) in
-        generateDocs(utils: utils)
+        try generateDocs(utils: utils)
     }
     $0.task(.clean) { (utils) in
         print("> Cleaning .build/ folder")
