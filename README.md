@@ -105,7 +105,7 @@ sake tasks
 The Swift code written in the `Sakefile.swift` file should meet the following guidelines:
 
 - It shouldn't fail the execution either using `fatalError` or force unwrapping nil values. Failing the execution causes the tool to print the stack trace in the console. Instead throw errors that are handled by `Sake` and nicely printed into th console.
-- Code should be synchronous and tasks should be completed by the time the closre execution ends.
+- Code should be synchronous and tasks should be completed by the time the closure execution ends.
 
 
 ## License
