@@ -2,6 +2,8 @@
 
 ## Next version
 
+### Fixed
+- Right alignment when printing tasks https://github.com/xcodeswift/sake/pull/28 by @pepibumur.
 
 ## 0.2.0
 
