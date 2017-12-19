@@ -6,14 +6,17 @@ import XCTest
 final class SakeTests: XCTestCase {
     
     enum Task: String, CustomStringConvertible {
-        case a
-        case b
+        case a = "a"
+        case b = "b_name"
         var description: String {
-           return self.rawValue
+            switch self {
+            case .a: return "a description"
+            case .b: return "b description"
+            }
         }
     }
     
-    func test_run_runsEverythingInTheRightOrder() {
+    func test_runTask_runsEverythingInTheRightOrder() {
         var executionOutputs: [String] = []
         let subject = Sake<Task> {
             $0.task(.a, dependencies: [.b]) { (_) in
@@ -46,7 +49,20 @@ final class SakeTests: XCTestCase {
             "after_each",
             "after_all"
         ])
-        
+    }
+
+    func test_runTasks_printsTheCorrectString() {
+        var printed: String!
+        let subject = Sake<Task>(printer: { printed = $0 }) {
+            $0.task(.a, dependencies: [.b]) { (_) in }
+            $0.task(.b) { _ in }
+        }
+        subject.run(arguments: ["tasks"])
+        let expected = """
+b_name:     b description
+a:          a description
+"""
+        XCTAssertEqual(printed, expected)
     }
     
 }
