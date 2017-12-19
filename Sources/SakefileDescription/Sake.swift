@@ -82,7 +82,7 @@ public extension Sake {
             .map({ task in
                 let spaces = (longestName + margin) - task.key.count
                 let space = String.init(repeating: " ", count: spaces)
-                return "\(task.key):\(space)\(task.value.description)"
+                return "\(task.key):\(space)\(task.value.type.description)"
             })
             .joined(separator: "\n"))
     }
