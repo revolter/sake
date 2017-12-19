@@ -7,37 +7,41 @@ public class Utils {}
 // MARK: - Sake
 
 public final class Sake<T: RawRepresentable & CustomStringConvertible> where T.RawValue == String {
-    
+
     fileprivate let utils: Utils = Utils()
     fileprivate let tasks: Tasks<T> = Tasks<T>()
     fileprivate let tasksInitializer: (Tasks<T>) -> Void
     fileprivate let printer: (String) -> Void
-    
-    public init(tasksInitializer: @escaping (Tasks<T>) -> Void) {
+
+    public init(tasksInitializer: @escaping (Tasks<T>) throws -> Void) {
         self.tasksInitializer = tasksInitializer
         self.printer = { print($0) }
     }
-    
+
     init(printer: @escaping (String) -> Void,
          tasksInitializer: @escaping (Tasks<T>) -> Void) {
         self.tasksInitializer = tasksInitializer
         self.printer = printer
     }
-    
+
 }
 
 // MARK: - Sake (Runner)
 
 public extension Sake {
-    
+
     public func run() {
         var arguments = CommandLine.arguments
         arguments.remove(at: 0)
         run(arguments: arguments)
     }
-    
+
     func run(arguments: [String]) {
-        tasksInitializer(tasks)
+        do {
+            try tasksInitializer(tasks)
+        } catch {
+            print("> Error initializing tasks: \(error)")
+        }
         guard let argument = arguments.first else {
             printer("> Error: Missing argument")
             exit(1)
@@ -60,9 +64,9 @@ public extension Sake {
             exit(1)
         }
     }
-    
+
     // MARK: - Fileprivate
-    
+
     fileprivate func printTasks() {
         let tasks = self.tasks.tasks
         let longestName = tasks.keys.reduce(0, { return ($1.count > $0) ? $1.count:$0})
@@ -75,7 +79,7 @@ public extension Sake {
             })
             .joined(separator: "\n"))
     }
-    
+
     fileprivate func runTaskAndDependencies(task taskName: String) throws {
         guard let task = tasks.tasks.first(where: {$0.key == taskName}).map({$0.value}) else {
             return
@@ -85,7 +89,7 @@ public extension Sake {
         try task.dependencies.forEach { try runTask(task: $0) }
         try runTask(task: taskName)
     }
-    
+
     fileprivate func runTask(task: String) throws {
         guard let task = tasks.tasks.first(where: {$0.key == task}) else {
             return
@@ -95,6 +99,6 @@ public extension Sake {
         try task.value.action(self.utils)
         tasks.afterEach.forEach({$0(utils)})
     }
-    
+
 }
 
