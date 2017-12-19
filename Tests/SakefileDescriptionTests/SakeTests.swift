@@ -19,10 +19,10 @@ final class SakeTests: XCTestCase {
     func test_runTask_runsEverythingInTheRightOrder() {
         var executionOutputs: [String] = []
         let subject = Sake<Task> {
-            $0.task(.a, dependencies: [.b]) { (_) in
+            try $0.task(.a, dependencies: [.b]) { (_) in
                 executionOutputs.append("a")
             }
-            $0.task(.b) { (_) in
+            try $0.task(.b) { (_) in
                 executionOutputs.append("b")
             }
             $0.beforeEach { (_) in
