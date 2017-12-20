@@ -62,7 +62,7 @@ enum Task: String, CustomStringConvertible {
 }
 
 Sake<Task> {
-  $0.task(.build) { (utils) in
+  try $0.task(.build) { (utils) in
     // Here is where you define your build task
   }
 }.run()

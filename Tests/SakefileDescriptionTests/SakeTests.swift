@@ -54,8 +54,8 @@ final class SakeTests: XCTestCase {
     func test_runTasks_printsTheCorrectString() {
         var printed: String!
         let subject = Sake<Task>(printer: { printed = $0 }) {
-            $0.task(.a, dependencies: [.b]) { (_) in }
-            $0.task(.b) { _ in }
+            try $0.task(.a, dependencies: [.b]) { (_) in }
+            try $0.task(.b) { _ in }
         }
         subject.run(arguments: ["tasks"])
         let expected = """
