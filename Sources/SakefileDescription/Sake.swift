@@ -11,9 +11,17 @@ public final class Sake<T: RawRepresentable & CustomStringConvertible> where T.R
     fileprivate let utils: Utils = Utils()
     fileprivate let tasks: Tasks<T> = Tasks<T>()
     fileprivate let tasksInitializer: (Tasks<T>) -> Void
+    fileprivate let printer: (String) -> Void
     
     public init(tasksInitializer: @escaping (Tasks<T>) -> Void) {
         self.tasksInitializer = tasksInitializer
+        self.printer = { print($0) }
+    }
+    
+    init(printer: @escaping (String) -> Void,
+         tasksInitializer: @escaping (Tasks<T>) -> Void) {
+        self.tasksInitializer = tasksInitializer
+        self.printer = printer
     }
     
 }
@@ -31,24 +39,24 @@ public extension Sake {
     func run(arguments: [String]) {
         tasksInitializer(tasks)
         guard let argument = arguments.first else {
-            print("> Error: Missing argument")
+            printer("> Error: Missing argument")
             exit(1)
         }
         if argument == "tasks" {
             printTasks()
         } else if argument == "task" {
             if arguments.count != 2 {
-                print("> Error: Missing task name")
+                printer("> Error: Missing task name")
                 exit(1)
             }
             do {
                 try runTaskAndDependencies(task: arguments[1])
             } catch {
-                print("> Error: \(error)")
+                printer("> Error: \(error)")
                 exit(1)
             }
         } else {
-            print("> Error: Invalid argument")
+            printer("> Error: Invalid argument")
             exit(1)
         }
     }
@@ -56,8 +64,15 @@ public extension Sake {
     // MARK: - Fileprivate
     
     fileprivate func printTasks() {
-        print(self.tasks.tasks
-            .map({"\($0.key):      \($0.value.description)"})
+        let tasks = self.tasks.tasks
+        let longestName = tasks.keys.reduce(0, { return ($1.count > $0) ? $1.count:$0})
+        let margin = 5
+        printer(self.tasks.tasks
+            .map({ task in
+                let spaces = (longestName + margin) - task.key.count
+                let space = String.init(repeating: " ", count: spaces)
+                return "\(task.key):\(space)\(task.value.description)"
+            })
             .joined(separator: "\n"))
     }
     
@@ -75,7 +90,7 @@ public extension Sake {
         guard let task = tasks.tasks.first(where: {$0.key == task}) else {
             return
         }
-        print("> Running \"\(task.key)\"")
+        printer("> Running \"\(task.key)\"")
         tasks.beforeEach.forEach({$0(utils)})
         try task.value.action(self.utils)
         tasks.afterEach.forEach({$0(utils)})
