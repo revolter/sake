@@ -44,7 +44,7 @@ public class GenerateSakefile {
             Task("build", description: "Builds the project") {
                 // Here is where you define your build task
             }
-        ]).run()
+        }
         """
     }
 
