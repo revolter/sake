@@ -54,4 +54,4 @@ Sake(tasks: [
         try createVersion(version: nextVersion.string, branch: branch)
         try updateFormula(version: nextVersion.string, branch: branch)
     }
-]).run()
+}

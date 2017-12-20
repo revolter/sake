@@ -56,9 +56,9 @@ public final class Sake {
 
 // MARK: - Sake (Runner)
 
-public extension Sake {
+extension Sake {
 
-    public func run() {
+    func run() {
         var arguments = CommandLine.arguments
         arguments.remove(at: 0)
         run(arguments: arguments)
