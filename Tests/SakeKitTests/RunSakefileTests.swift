@@ -25,7 +25,7 @@ final class RunSakefileTests: XCTestCase {
     
     func test_execute_runsTheRightCommand() {
         print(runCommand)
-        XCTAssertEqual(runCommand, "exec 2>/dev/null; swiftc --driver-mode=swift -L /libraries -I /libraries -lSakefileDescription -L /utils -I /utils -lSakefileUtils /project/Sakefile.swift tasks build")
+        XCTAssertEqual(runCommand, "exec 2>/dev/null; swiftc --driver-mode=swift -L /utils -I /utils -lSakefileUtils /project/Sakefile.swift tasks build")
     }
     
     

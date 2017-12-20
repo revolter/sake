@@ -4,32 +4,32 @@ import SwiftShell
 
 /// Runs the Sakefile.
 public class RunSakefile {
-    
+
     // MARK: - Attributes
-    
+
     /// Path where the Sakefile.swift file is.
     let path: String
-    
+
     /// Arguments to be passed.
     let arguments: [String]
-    
+
     /// Verbose
     let verbose: Bool
-    
+
     /// Run bash command.
     let runBashCommand: (String) throws -> ()
-    
+
     /// Returns the Sakefile.swift path if it exists in the given directory.
     let sakefilePath: (Path) -> Path?
-    
+
     /// Returns the file description library path.
     let fileDescriptionLibraryPath: () -> Path?
-    
+
     /// Returns the utils library path.
     let utilsLibraryPath: () -> Path?
-    
+
     // MARK: - Init
-    
+
     /// Default constructor.
     ///
     /// - Parameters:
@@ -47,7 +47,7 @@ public class RunSakefile {
                   utilsLibraryPath: { Runtime.utilsLibraryPath() },
                   runBashCommand: { try runAndPrint(bash: $0) })
     }
-    
+
     /// Default constructor.
     ///
     /// - Parameters:
@@ -73,9 +73,9 @@ public class RunSakefile {
         self.utilsLibraryPath = utilsLibraryPath
         self.runBashCommand = runBashCommand
     }
-    
+
     // MARK: - Public
-    
+
     /// Executes the Sakefile.swift
     ///
     /// - Throws: an error if the execution fails for any reason.
@@ -86,17 +86,18 @@ public class RunSakefile {
         guard let filedescriptionLibraryPath = fileDescriptionLibraryPath() else {
             throw "Couldn't find libSakefileDescription.dylib to link against to"
         }
-        
+
         var arguments: [String] = []
         arguments += ["--driver-mode=swift"]
-        arguments += ["-L", filedescriptionLibraryPath.parent().normalize().string]
-        arguments += ["-I", filedescriptionLibraryPath.parent().normalize().string]
-        arguments += ["-lSakefileDescription"]
-
+        
         if let utilsLibraryPath = utilsLibraryPath() {
             arguments += ["-L", utilsLibraryPath.parent().normalize().string]
             arguments += ["-I", utilsLibraryPath.parent().normalize().string]
             arguments += ["-lSakefileUtils"]
+        } else {
+            arguments += ["-L", filedescriptionLibraryPath.parent().normalize().string]
+            arguments += ["-I", filedescriptionLibraryPath.parent().normalize().string]
+            arguments += ["-lSakefileDescription"]
         }
         arguments += [sakefilePath.string]
         arguments += self.arguments
@@ -110,9 +111,9 @@ public class RunSakefile {
             throw "Error processing your Sakefile.swift. Use --verbose to get more details about the problem."
         }
     }
-    
+
     // MARK: - Fileprivate
-    
+
     static func sakefilePath(path: Path) -> Path? {
         let sakefilePath = (path + "Sakefile.swift").normalize()
         if sakefilePath.exists {
@@ -120,5 +121,5 @@ public class RunSakefile {
         }
         return nil
     }
-    
+
 }

@@ -2,25 +2,25 @@ import Foundation
 
 // MARK: - Task
 
-public final class Task   {
-
-    /// Task description.
-    let description: String
+public final class Task<T: RawRepresentable & CustomStringConvertible> where T.RawValue == String   {
 
     /// Task dependencies (other tasks)
     let dependencies: [String]
 
     /// Task action closure.
     let action: (Utils) throws -> Void
+    
+    /// Task type
+    let type: T
 
     /// Initializes the task.
     ///
     /// - Parameters:
-    ///   - description: task description.
+    ///   - type: task type.
     ///   - dependencies: task dependencies.
     ///   - action: action closure.
-    init(description: String, dependencies: [String] = [], action: @escaping (Utils) throws -> Void) {
-        self.description = description
+    public init(type: T, dependencies: [String] = [], action: @escaping (Utils) throws -> Void) {
+        self.type = type
         self.dependencies = dependencies
         self.action = action
     }
@@ -32,7 +32,7 @@ public final class Task   {
 public final class Tasks<T: RawRepresentable & CustomStringConvertible> where T.RawValue == String {
     
     /// Tasks.
-    var tasks: [String: Task] = [:]
+    var tasks: [String: Task<T>] = [:]
     
     /// Hooks
     var beforeAll: [(Utils) -> Void] = []
@@ -47,15 +47,23 @@ public final class Tasks<T: RawRepresentable & CustomStringConvertible> where T.
     ///   - description: task description.
     ///   - dependencies: task dependencies.
     ///   - action: task action.
-    public func task(_ type: T, dependencies: [T] = [], action: @escaping (Utils) throws -> Void) {
-        tasks[type.rawValue] = Task(description: type.description, dependencies: dependencies.map({$0.rawValue}), action: action)
+    public func task(_ type: T, dependencies: [T] = [], action: @escaping (Utils) throws -> Void) throws {
+        if tasks[type.rawValue] != nil {
+            throw "Trying to register task \(type.rawValue) that is already registered"
+        }
+        tasks[type.rawValue] = Task(type: type,
+                                    dependencies: dependencies.map({$0.rawValue}),
+                                    action: action)
     }
     
     /// Adds a new task.
     ///
     /// - Parameter task: task to be added.
-    public func task(_ type: T, task: Task) {
-        tasks[type.rawValue] = task
+    public func task(task: Task<T>) throws {
+        if tasks[task.type.rawValue] != nil {
+            throw "Trying to register task \(task.type.rawValue) that is already registered"
+        }
+        tasks[task.type.rawValue] = task
     }
     
     /// Adds a before all hook.

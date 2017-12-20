@@ -56,10 +56,10 @@ func updateFormula(version: String, branch: String, utils: Utils) throws {
 }
 
 Sake<Task> {
-    $0.task(.documentation) { (utils) in
+    try $0.task(.documentation) { (utils) in
         try generateDocs(utils: utils)
     }
-    $0.task(.continuousIntegration) { utils in
+    try $0.task(.continuousIntegration) { utils in
         print("> Linting the project")
         try utils.shell.runAndPrint(bash: "swiftlint")
         print("> Building the project")
@@ -67,7 +67,7 @@ Sake<Task> {
         print("> Testing the project")
         try utils.shell.runAndPrint(bash: "swift test")
     }
-    $0.task(.release) { (utils) in
+    try $0.task(.release) { (utils) in
         if try utils.git.anyChanges() { throw "Commit all your changes before starting the release" }
         if try utils.git.branch() != "master" { throw "The release process should be initialized from master" }
         let nextVersion = try Version(utils.git.lastTag()).bumpingMinor()
