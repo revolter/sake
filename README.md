@@ -45,7 +45,7 @@ Sake aims to provide a command line tool and the foundation to automate your tas
 
 ## Installation 🥑
 
-You can easily install rake using [Homebrew](https://brew.sh/):
+You can easily install sake using [Homebrew](https://brew.sh/):
 
 ```
 brew tap xcodeswift/sake git@github.com:xcodeswift/sake.git
