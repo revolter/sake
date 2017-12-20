@@ -89,14 +89,15 @@ public class RunSakefile {
 
         var arguments: [String] = []
         arguments += ["--driver-mode=swift"]
-        // arguments += ["-L", filedescriptionLibraryPath.parent().normalize().string]
-        // arguments += ["-I", filedescriptionLibraryPath.parent().normalize().string]
-        // arguments += ["-lSakefileDescription"]
-
+        
         if let utilsLibraryPath = utilsLibraryPath() {
             arguments += ["-L", utilsLibraryPath.parent().normalize().string]
             arguments += ["-I", utilsLibraryPath.parent().normalize().string]
             arguments += ["-lSakefileUtils"]
+        } else {
+            arguments += ["-L", filedescriptionLibraryPath.parent().normalize().string]
+            arguments += ["-I", filedescriptionLibraryPath.parent().normalize().string]
+            arguments += ["-lSakefileDescription"]
         }
         arguments += [sakefilePath.string]
         arguments += self.arguments
