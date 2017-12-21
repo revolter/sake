@@ -28,13 +28,13 @@ Sake hasn't reached the first major version yet. We are still defining many thin
 
 We kindly ask you to use Sake on your own responsibility during this early stage and encourage you to participate in discussions that might determine what Sake final version looks like.
 
-## Sake & Fastlane
-Although Sake & Fastlane share the same core idea, facilitate tasks automation in any project, there are some subtle differences in the implementation and the scope of the tools that is worth mentioning:
+## Sake & fastlane
+Although Sake & fastlane share the same core idea, facilitate tasks automation in any project, there are some subtle differences in the implementation and the scope of the tools that is worth mentioning:
 
-- Sake is developed entirely in Swift while Fastlane is developed in Ruby. Fastlane supports defining the lanes in Swift but it's proxy layer to talk to the Fastlane core in Ruby.
-- Sake aims for simplicity. It's up to the developer to build any necessary abstraction and Sake facilitates it by providing testing and code splitting features. Fastlane on the other side also aims to provide a lot of abstractions for many tools, making them easier to use.
-- Sake is installed in the system as a compiled executable with a couple of libraries and thus it's very portable. On the other side Fastlane needs to be installed using Ruby Gem or Bundler and it comes with a bunch of dependencies.
-- Sake integrates well with Xcode and the tools Apple OSs developers are used to, allowing them to integrate their tasks with third party Swift dependencies esily.
+- Sake is developed entirely in Swift while fastlane is developed in Ruby. fastlane supports defining the lanes in Swift but it's proxy layer to talk to the fastlane core in Ruby.
+- Sake aims for simplicity. It's up to the developer to build any necessary abstraction and Sake facilitates it by providing testing and code splitting features. fastlane on the other side also aims to provide a lot of abstractions for many tools, making them easier to use.
+- Sake is installed in the system as a compiled executable with a couple of libraries and thus it's very portable. On the other side fastlane needs to be installed using RubyGems or Bundler and it comes with a bunch of dependencies.
+- Sake integrates well with Xcode and the tools Apple OSs developers are used to, allowing them to integrate their tasks with third party Swift dependencies easily.
 
 There's no good or bad tool. Choosing the one for your project depends on the project and the team that will work on it.
 
