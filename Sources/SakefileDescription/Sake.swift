@@ -86,9 +86,33 @@ public extension Sake {
             })
             .joined(separator: "\n"))
     }
+    
+    fileprivate func printWarningTaskNotFound(_ task: String) {
+        var alertMessage = "> [!] Could not find task '\(task)'"
+        if let suggestedTaskName = findSuggestionTaskName(for: task) {
+            alertMessage += ". Maybe did you mean '\(suggestedTaskName)'?"
+        }
+        printer(alertMessage)
+    }
+    
+    /// Find a possible alternative task name. How it work:
+    /// 1) Create an array with tuples '(task, distance)', calculating the distance between input task name and the available tasks.
+    /// 2) Filter tasks without occurrences (ex: "ci", distance = 2, doesn't have occurrences).
+    /// 3) Obtain the task with minimum distance.
+    ///
+    /// - Parameter task: the task name written by the user
+    /// - Returns: alternative task name if exist
+    fileprivate func findSuggestionTaskName(for task: String) -> String? {
+        let taskWithDistance = self.tasks.tasks.keys
+            .map { (taskName: $0, distance: $0.levenshteinDistance(task)) }
+            .filter { $0.taskName.count != $0.distance }
+            .min { $0.distance < $1.distance }
+        return taskWithDistance?.taskName
+    }
 
     fileprivate func runTaskAndDependencies(task taskName: String) throws {
         guard let task = tasks.tasks.first(where: {$0.key == taskName}).map({$0.value}) else {
+            printWarningTaskNotFound(taskName)
             return
         }
         tasks.beforeAll.forEach({ $0(utils) })
@@ -97,8 +121,9 @@ public extension Sake {
         try runTask(task: taskName)
     }
 
-    fileprivate func runTask(task: String) throws {
-        guard let task = tasks.tasks.first(where: {$0.key == task}) else {
+    fileprivate func runTask(task taskName: String) throws {
+        guard let task = tasks.tasks.first(where: {$0.key == taskName}) else {
+            printWarningTaskNotFound(taskName)
             return
         }
         printer("> Running \"\(task.key)\"")
