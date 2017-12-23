@@ -2,6 +2,9 @@
 
 ## Next version
 
+### Changed
+- removed the need for a `utils` instance that gets passed around. Use `Utils` instead https://github.com/xcodeswift/sake/pull/41 by @yonaskolb.
+
 ### Fixed
 - Right alignment when printing tasks https://github.com/xcodeswift/sake/pull/28 by @pepibumur.
 
