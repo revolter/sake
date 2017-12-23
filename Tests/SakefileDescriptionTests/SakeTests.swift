@@ -53,6 +53,7 @@ final class SakeTests: XCTestCase {
         subject.run(arguments: ["task", "_"])
         let expected = "> [!] Could not find task '_'"
         XCTAssertEqual(printed, expected)
+        XCTAssertEqual(exited, 1)
     }
 
     func test_shouldPrintAndThrow_whenTaskIsAlreadyRegistered() {

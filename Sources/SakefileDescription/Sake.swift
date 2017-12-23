@@ -138,6 +138,7 @@ extension Sake {
     fileprivate func runTaskAndDependencies(task taskName: String) throws {
         guard let task = tasks[taskName] else {
             printWarningTaskNotFound(taskName)
+            exiter(1)
             return
         }
         beforeAll()
