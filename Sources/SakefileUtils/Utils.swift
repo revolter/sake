@@ -7,9 +7,11 @@ fileprivate var httpInstance: HTTP!
 fileprivate var shellInstance: Shell!
 fileprivate var gitInstance: Git!
 
-// MARK: - Utils Extension
+// MARK: - Utils
 
-public extension Utils {
+// Utils is an enum so it's not initializable
+/// a bunch of useful Utilities
+public enum Utils {
 
     /// HTTP
     public static var http = HTTP()

@@ -1,10 +1,5 @@
 import Foundation
 
-// MARK: - Utils
-
-// enum so it's not initializable
-public enum Utils {}
-
 // MARK: - Sake
 
 public final class Sake<T: RawRepresentable & CustomStringConvertible> where T.RawValue == String {
