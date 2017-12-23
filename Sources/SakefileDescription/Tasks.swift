@@ -8,7 +8,7 @@ public final class Task<T: RawRepresentable & CustomStringConvertible> where T.R
     let dependencies: [String]
 
     /// Task action closure.
-    let action: (Utils) throws -> Void
+    let action: () throws -> Void
     
     /// Task type
     let type: T
@@ -19,7 +19,7 @@ public final class Task<T: RawRepresentable & CustomStringConvertible> where T.R
     ///   - type: task type.
     ///   - dependencies: task dependencies.
     ///   - action: action closure.
-    public init(type: T, dependencies: [String] = [], action: @escaping (Utils) throws -> Void) {
+    public init(type: T, dependencies: [String] = [], action: @escaping () throws -> Void) {
         self.type = type
         self.dependencies = dependencies
         self.action = action
@@ -35,10 +35,10 @@ public final class Tasks<T: RawRepresentable & CustomStringConvertible> where T.
     var tasks: [String: Task<T>] = [:]
     
     /// Hooks
-    var beforeAll: [(Utils) -> Void] = []
-    var beforeEach: [(Utils) -> Void] = []
-    var afterAll: [(Utils) -> Void] = []
-    var afterEach: [(Utils) -> Void] = []
+    var beforeAll: [() -> Void] = []
+    var beforeEach: [() -> Void] = []
+    var afterAll: [() -> Void] = []
+    var afterEach: [() -> Void] = []
 
     /// Adds a new task.
     ///
@@ -47,7 +47,7 @@ public final class Tasks<T: RawRepresentable & CustomStringConvertible> where T.
     ///   - description: task description.
     ///   - dependencies: task dependencies.
     ///   - action: task action.
-    public func task(_ type: T, dependencies: [T] = [], action: @escaping (Utils) throws -> Void) throws {
+    public func task(_ type: T, dependencies: [T] = [], action: @escaping () throws -> Void) throws {
         if tasks[type.rawValue] != nil {
             throw "Trying to register task \(type.rawValue) that is already registered"
         }
@@ -69,28 +69,28 @@ public final class Tasks<T: RawRepresentable & CustomStringConvertible> where T.
     /// Adds a before all hook.
     ///
     /// - Parameter closure: closure that will be executed before all the tasks.
-    public func beforeAll(_ closure: @escaping (Utils) -> Void) {
+    public func beforeAll(_ closure: @escaping () -> Void) {
         beforeAll.append(closure)
     }
     
     /// Adds a before each hook.
     ///
     /// - Parameter closure: closure that will be executed before each task.
-    public func beforeEach(_ closure: @escaping (Utils) -> Void) {
+    public func beforeEach(_ closure: @escaping () -> Void) {
         beforeEach.append(closure)
     }
     
     /// Adds an after all hook.
     ///
     /// - Parameter closure: closure that will be executed after all the tasks.
-    public func afterAll(_ closure: @escaping (Utils) -> Void) {
+    public func afterAll(_ closure: @escaping () -> Void) {
         afterAll.append(closure)
     }
     
     /// Adds an after each hook.
     ///
     /// - Parameter closure: closure that will be executed after each task.
-    public func afterEach(_ closure: @escaping (Utils) -> Void) {
+    public func afterEach(_ closure: @escaping () -> Void) {
         afterEach.append(closure)
     }
     

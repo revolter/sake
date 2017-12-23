@@ -2,7 +2,7 @@ import Foundation
 
 /// Generates a base Sakefile.swift
 public class GenerateSakefile {
-    
+
     // MARK: - Attributes
 
     /// Path to the folder where the Sakefile.swift will be generated.
@@ -10,18 +10,18 @@ public class GenerateSakefile {
 
     /// File manager.
     fileprivate let fileManager: FileManager = .default
-    
+
     // MARK: - Init
-    
+
     /// Initializes the command that generates a base Sakefile.swift
     ///
     /// - Parameter path: path to the folder where the Sakefile.swift will be generated.
     public init(path: String) {
         self.path = path
     }
-    
+
     // MARK: - Public
-    
+
     /// Generates the base Sakefile.swift.
     ///
     /// - Throws: an error if the generation fails.
@@ -34,12 +34,12 @@ public class GenerateSakefile {
             .write(to: sakefilePath, atomically: true, encoding: .utf8)
         print("Sakefile.swift generated")
     }
-    
+
     static func defaultContent() -> String {
         return """
         import SakefileDescription
         import SakefileUtils
-        
+
         enum Task: String, CustomStringConvertible {
             case build
             var description: String {
@@ -49,13 +49,13 @@ public class GenerateSakefile {
                 }
             }
         }
-        
+
         Sake<Task> {
-            try $0.task(.build) { (utils) in
+            try $0.task(.build) {
                 // Here is where you define your build task
             }
         }.run()
         """
     }
-    
+
 }

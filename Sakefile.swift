@@ -23,58 +23,56 @@ enum Task: String, CustomStringConvertible {
     }
 }
 
-func generateDocs(utils: Utils) throws {
-    try utils.shell.runAndPrint(bash: "swift package generate-xcodeproj")
-    try utils.shell.runAndPrint(bash: "bundle exec jazzy --clean --sdk macosx --xcodebuild-arguments -scheme,sake --skip-undocumented")
+func generateDocs() throws {
+    try Utils.shell.runAndPrint(bash: "swift package generate-xcodeproj")
+    try Utils.shell.runAndPrint(bash: "bundle exec jazzy --clean --sdk macosx --xcodebuild-arguments -scheme,sake --skip-undocumented")
 }
 
-func createVersion(version: String, branch: String, utils: Utils) throws {
-    try utils.git.createBranch(branch)
+func createVersion(version: String, branch: String) throws {
+    try Utils.git.createBranch(branch)
     print("> Building the project")
-    try utils.shell.runAndPrint(bash: "swift build")
+    try Utils.shell.runAndPrint(bash: "swift build")
     print("> Generating docs")
-    try generateDocs(utils: utils)
-    try utils.git.addAll()
-    try utils.git.commitAll(message: "[\(branch)] Bump version")
-    try utils.git.tag(version)
-    try utils.git.push(remote: "origin", branch: branch, tags: true)
+    try generateDocs()
+    try Utils.git.addAll()
+    try Utils.git.commitAll(message: "[\(branch)] Bump version")
+    try Utils.git.tag(version)
+    try Utils.git.push(remote: "origin", branch: branch, tags: true)
 }
 
-func updateFormula(version: String, branch: String, utils: Utils) throws {
+func updateFormula(version: String, branch: String) throws {
     let formulaPath = "Formula/sake.rb"
     print("> Updating formula to \(version)")
     let archiveURL = "https://github.com/xcodeswift/sake/archive/\(version).tar.gz"
-    try utils.shell.runAndPrint(bash: "curl -LSs \(archiveURL) -o sake.tar.gz")
-    let sha = try utils.shell.run(bash: "shasum -a 256 sake.tar.gz | awk '{printf $1}'")
-    _ = try utils.shell.run(bash: "sed -i \"\" 's|version .*$|version \"\(version)\"|' \(formulaPath)")
-    _ = try utils.shell.run(bash: "sed -i \"\" 's|sha256 .*$|sha256 \"\(sha)\"|' \(formulaPath)")
-    try utils.shell.runAndPrint(bash: "rm sake.tar.gz")
+    try Utils.shell.runAndPrint(bash: "curl -LSs \(archiveURL) -o sake.tar.gz")
+    let sha = try Utils.shell.run(bash: "shasum -a 256 sake.tar.gz | awk '{printf $1}'")
+    _ = try Utils.shell.run(bash: "sed -i \"\" 's|version .*$|version \"\(version)\"|' \(formulaPath)")
+    _ = try Utils.shell.run(bash: "sed -i \"\" 's|sha256 .*$|sha256 \"\(sha)\"|' \(formulaPath)")
+    try Utils.shell.runAndPrint(bash: "rm sake.tar.gz")
     print("> Commiting and pushing the changes to release/\(version)")
-    try utils.git.add(paths: formulaPath)
-    try utils.git.commit(message: "[\(branch)] Update formula")
-    try utils.git.push(remote: "origin", branch: branch)
+    try Utils.git.add(paths: formulaPath)
+    try Utils.git.commit(message: "[\(branch)] Update formula")
+    try Utils.git.push(remote: "origin", branch: branch)
 }
 
 Sake<Task> {
-    try $0.task(.documentation) { (utils) in
-        try generateDocs(utils: utils)
+    try $0.task(.documentation) {
+        try generateDocs()
     }
-    try $0.task(.continuousIntegration) { utils in
+    try $0.task(.continuousIntegration) {
         print("> Linting the project")
-        try utils.shell.runAndPrint(bash: "swiftlint")
+        try Utils.shell.runAndPrint(bash: "swiftlint")
         print("> Building the project")
-        try utils.shell.runAndPrint(bash: "swift build")
+        try Utils.shell.runAndPrint(bash: "swift build")
         print("> Testing the project")
-        try utils.shell.runAndPrint(bash: "swift test")
+        try Utils.shell.runAndPrint(bash: "swift test")
     }
-    try $0.task(.release) { (utils) in
-        if try utils.git.anyChanges() { throw "Commit all your changes before starting the release" }
-        if try utils.git.branch() != "master" { throw "The release process should be initialized from master" }
-        let nextVersion = try Version(utils.git.lastTag()).bumpingMinor()
+    try $0.task(.release) {
+        if try Utils.git.anyChanges() { throw "Commit all your changes before starting the release" }
+        if try Utils.git.branch() != "master" { throw "The release process should be initialized from master" }
+        let nextVersion = try Version(Utils.git.lastTag()).bumpingMinor()
         let branch = "release/\(nextVersion.string)"
-        try createVersion(version: nextVersion.string, branch: branch, utils: utils)
-        try updateFormula(version: nextVersion.string, branch: branch, utils: utils)
+        try createVersion(version: nextVersion.string, branch: branch)
+        try updateFormula(version: nextVersion.string, branch: branch)
     }
 }.run()
-
-

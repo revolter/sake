@@ -2,13 +2,13 @@ import Foundation
 
 // MARK: - Utils
 
-public class Utils {}
+// enum so it's not initializable
+public enum Utils {}
 
 // MARK: - Sake
 
 public final class Sake<T: RawRepresentable & CustomStringConvertible> where T.RawValue == String {
 
-    fileprivate let utils: Utils = Utils()
     fileprivate let tasks: Tasks<T> = Tasks<T>()
     fileprivate let tasksInitializer: (Tasks<T>) throws -> Void
     fileprivate let printer: (String) -> Void
@@ -115,8 +115,8 @@ public extension Sake {
             printWarningTaskNotFound(taskName)
             return
         }
-        tasks.beforeAll.forEach({ $0(utils) })
-        defer { tasks.afterAll.forEach({ $0(utils) }) }
+        tasks.beforeAll.forEach { $0() }
+        defer { tasks.afterAll.forEach { $0() } }
         try task.dependencies.forEach { try runTask(task: $0) }
         try runTask(task: taskName)
     }
@@ -127,9 +127,9 @@ public extension Sake {
             return
         }
         printer("> Running \"\(task.key)\"")
-        tasks.beforeEach.forEach({$0(utils)})
-        try task.value.action(self.utils)
-        tasks.afterEach.forEach({$0(utils)})
+        tasks.beforeEach.forEach { $0() }
+        try task.value.action()
+        tasks.afterEach.forEach { $0() }
     }
 
 }

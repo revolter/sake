@@ -12,26 +12,11 @@ fileprivate var gitInstance: Git!
 public extension Utils {
 
     /// HTTP
-    public var http: HTTP {
-        if httpInstance == nil {
-            httpInstance = HTTP()
-        }
-        return httpInstance
-    }
+    public static var http = HTTP()
     
     /// Shell
-    public var shell: Shell {
-        if shellInstance == nil {
-            shellInstance = Shell()
-        }
-        return shellInstance
-    }
-    
+    public static var shell = Shell()
+
     /// Git
-    public var git: Git {
-        if gitInstance == nil {
-            gitInstance = Git(shell: shell)
-        }
-        return gitInstance
-    }
+    public static let git = Git(shell: shell)
 }
