@@ -1,4 +1,4 @@
-# Sake - Swift Make
+# Sake - Swift Make 🍶
 
 <img width="300" src="Assets/Logo.png"/>
 
