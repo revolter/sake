@@ -4,3 +4,4 @@
 /*.xcodeproj
 *.xcodeproj
 Build/
+.idea

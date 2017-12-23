@@ -67,11 +67,31 @@ public class GenerateProject {
         let workspace = XCWorkspace(data: workspaceData)
         let pbxproj = PBXProj(objectVersion: 48, rootObject: "PROJECT")
         let project = XcodeProj(workspace: workspace, pbxproj: pbxproj)
-        try setup(pbxproj: pbxproj)
+        let mainSwiftPath = try createMainSwiftIfNeeded()
+        try setup(pbxproj: pbxproj, mainSwiftPath: mainSwiftPath)
         try write(project, Path(projectPath.path))
     }
+    
+    fileprivate func createMainSwiftIfNeeded() throws -> Path {
+        let tmpPath = Path(NSTemporaryDirectory())
+        let tmpSakePath = tmpPath + "Sake"
+        if !tmpSakePath.exists {
+            try tmpSakePath.mkpath()
+        }
+        let mainSwiftPath = tmpSakePath + "main.swift"
+        let mainSwiftContent = """
+import Foundation
 
-    fileprivate func setup(pbxproj: PBXProj) throws {
+// NOTE: Don't add anything to this file
+"""
+        if !mainSwiftPath.exists {
+            try mainSwiftPath.write(mainSwiftContent)
+        }
+        return mainSwiftPath
+    }
+    
+    fileprivate func setup(pbxproj: PBXProj,
+                           mainSwiftPath: Path) throws {
         guard let sakefilePath = sakefilePath() else {
             throw "Couldn't file a Sakefile.swift file in the current directory"
         }
@@ -82,7 +102,8 @@ public class GenerateProject {
         addFileReferences(pbxproj: pbxproj,
                           filedescriptionLibraryPath: filedescriptionLibraryPath,
                           utilsLibraryPath: utilsLibraryPath,
-                          sakefilePath: sakefilePath)
+                          sakefilePath: sakefilePath,
+                          mainSwiftPath: mainSwiftPath)
         addGroups(pbxproj: pbxproj, withUtils: utilsLibraryPath != nil)
         addBuildFiles(pbxproj: pbxproj, withUtils: utilsLibraryPath != nil)
         addBuildPhases(pbxproj: pbxproj, withUtils: utilsLibraryPath != nil)
@@ -94,7 +115,8 @@ public class GenerateProject {
     fileprivate func addFileReferences(pbxproj: PBXProj,
                                        filedescriptionLibraryPath: Path,
                                        utilsLibraryPath: Path?,
-                                       sakefilePath: Path) {
+                                       sakefilePath: Path,
+                                       mainSwiftPath: Path) {
         pbxproj.objects.addObject(PBXFileReference(reference: "FILE_REF_PRODUCT",
                                                    sourceTree: .buildProductsDir,
                                                    explicitFileType: "compiled.mach-o.executable",
@@ -110,6 +132,11 @@ public class GenerateProject {
                                                    name: filedescriptionLibraryPath.lastComponent,
                                                    lastKnownFileType: "compiled.mach-o.dylib",
                                                    path: filedescriptionLibraryPath.string))
+        pbxproj.objects.addObject(PBXFileReference(reference: "FILE_REF_MAIN",
+                                                   sourceTree: .absolute,
+                                                   name: mainSwiftPath.lastComponent,
+                                                   lastKnownFileType: "sourcecode.swift",
+                                                   path: mainSwiftPath.absolute().string))
         if let utilsLibraryPath = utilsLibraryPath {
             pbxproj.objects.addObject(PBXFileReference(reference: "FILE_REF_LIB_UTILS",
                                                        sourceTree: .absolute,
@@ -125,7 +152,7 @@ public class GenerateProject {
                                            sourceTree: .group,
                                            name: "Products"))
         pbxproj.objects.addObject(PBXGroup(reference: "GROUP_MAIN",
-                                           children: ["FILE_REF_SAKEFILE", "GROUP_PRODUCTS", "GROUP_FRAMEWORKS"],
+                                           children: ["FILE_REF_SAKEFILE", "FILE_REF_MAIN", "GROUP_PRODUCTS", "GROUP_FRAMEWORKS"],
                                            sourceTree: .group))
         var frameworks: [String] = ["FILE_REF_LIB"]
         if withUtils {
@@ -142,6 +169,8 @@ public class GenerateProject {
                                                fileRef: "FILE_REF_SAKEFILE"))
         pbxproj.objects.addObject(PBXBuildFile(reference: "BUILD_FILE_LIB",
                                                fileRef: "FILE_REF_LIB"))
+        pbxproj.objects.addObject(PBXBuildFile(reference: "BUILD_FILE_MAIN",
+                                               fileRef: "FILE_REF_MAIN"))
         if withUtils {
             pbxproj.objects.addObject(PBXBuildFile(reference: "BUILD_FILE_LIB_UTILS",
                                                    fileRef: "FILE_REF_LIB_UTILS"))
@@ -159,7 +188,7 @@ public class GenerateProject {
                                                           runOnlyForDeploymentPostprocessing: 0))
         
         pbxproj.objects.addObject(PBXSourcesBuildPhase(reference: "SOURCE_BUILD_PHASE",
-                                                       files: ["BUILD_FILE_SAKEFILE"],
+                                                       files: ["BUILD_FILE_SAKEFILE", "BUILD_FILE_MAIN"],
                                                        buildActionMask: PBXSourcesBuildPhase.defaultBuildActionMask,
                                                        runOnlyForDeploymentPostprocessing: 0))
         pbxproj.objects.addObject(PBXCopyFilesBuildPhase(reference: "COPY_FILES_BUILD_PHASE",
