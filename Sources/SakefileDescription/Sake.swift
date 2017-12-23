@@ -2,29 +2,56 @@ import Foundation
 
 // MARK: - Sake
 
-public final class Sake<T: RawRepresentable & CustomStringConvertible> where T.RawValue == String {
+public final class Sake {
 
-    fileprivate let tasks: Tasks<T> = Tasks<T>()
-    fileprivate let tasksInitializer: (Tasks<T>) throws -> Void
+    var tasks: [String: Task]
     fileprivate let printer: (String) -> Void
 
-    public init(tasksInitializer: @escaping (Tasks<T>) throws -> Void) {
-        self.tasksInitializer = tasksInitializer
-        self.printer = { print($0) }
-    }
+    public typealias Hook = () -> Void
 
-    init(printer: @escaping (String) -> Void,
-         tasksInitializer: @escaping (Tasks<T>) throws -> Void) {
-        self.tasksInitializer = tasksInitializer
+    /// Hooks
+    var beforeAll: Hook
+    var beforeEach: Hook
+    var afterEach: Hook
+    var afterAll: Hook
+
+    var taskError: String?
+
+    @discardableResult
+    public init(tasks: [Task],
+                printer: @escaping (String) -> Void = { print($0) },
+                beforeAll: @escaping Hook = {},
+                beforeEach: @escaping Hook = {},
+                afterEach: @escaping Hook = {},
+                afterAll: @escaping Hook = {}) {
         self.printer = printer
-    }
 
-    init(printer: @escaping (String) -> Void,
-         tasksInitializer: @escaping (Tasks<T>) -> Void) {
-        self.tasksInitializer = tasksInitializer
-        self.printer = printer
-    }
+        var tasksByName: [String: Task] = [:]
 
+        // check that tasks aren't already registered
+        for task in tasks {
+            if tasksByName[task.name] != nil {
+                taskError = "Trying to register task \(task.name) that is already registered"
+            } else {
+                tasksByName[task.name] = task
+            }
+        }
+
+        // check that tasks don't have any invalid dependencies
+        for task in tasks {
+            for dependency in task.dependencies {
+                if tasksByName[dependency] == nil {
+                    taskError = "Task \(task.name) has a dependency \(dependency) that can't be found"
+                }
+            }
+        }
+        self.tasks = tasksByName
+
+        self.beforeAll = beforeAll
+        self.beforeEach = beforeEach
+        self.afterAll = afterAll
+        self.afterEach = afterEach
+    }
 }
 
 // MARK: - Sake (Runner)
@@ -38,10 +65,8 @@ public extension Sake {
     }
 
     func run(arguments: [String]) {
-        do {
-            try tasksInitializer(tasks)
-        } catch {
-            printer("> Error initializing tasks: \(error)")
+        if let taskError = taskError {
+            printer("> Error initializing tasks: \(taskError)")
             return
         }
         guard let argument = arguments.first else {
@@ -70,15 +95,15 @@ public extension Sake {
     // MARK: - Fileprivate
 
     fileprivate func printTasks() {
-        let tasks = self.tasks.tasks
-        let longestName = tasks.keys.reduce(0, { return ($1.count > $0) ? $1.count:$0})
+        let longestName = tasks.keys.reduce(0, { $1.count > $0  ? $1.count : $0 })
         let margin = 5
-        printer(self.tasks.tasks
-            .map({ task in
-                let spaces = (longestName + margin) - task.key.count
-                let space = String.init(repeating: " ", count: spaces)
-                return "\(task.key):\(space)\(task.value.type.description)"
-            })
+        printer(self.tasks.values
+            .sorted { $0.name < $1.name }
+            .map { task in
+                let spaces = (longestName + margin) - task.name.count
+                let space = String(repeating: " ", count: spaces)
+                return "\(task.name):\(space)\(task.description)"
+            }
             .joined(separator: "\n"))
     }
     
@@ -98,7 +123,7 @@ public extension Sake {
     /// - Parameter task: the task name written by the user
     /// - Returns: alternative task name if exist
     fileprivate func findSuggestionTaskName(for task: String) -> String? {
-        let taskWithDistance = self.tasks.tasks.keys
+        let taskWithDistance = self.tasks.keys
             .map { (taskName: $0, distance: $0.levenshteinDistance(task)) }
             .filter { $0.taskName.count != $0.distance }
             .min { $0.distance < $1.distance }
@@ -106,25 +131,25 @@ public extension Sake {
     }
 
     fileprivate func runTaskAndDependencies(task taskName: String) throws {
-        guard let task = tasks.tasks.first(where: {$0.key == taskName}).map({$0.value}) else {
+        guard let task = tasks[taskName] else {
             printWarningTaskNotFound(taskName)
             return
         }
-        tasks.beforeAll.forEach { $0() }
-        defer { tasks.afterAll.forEach { $0() } }
+        beforeAll()
+        defer { afterAll() }
         try task.dependencies.forEach { try runTask(task: $0) }
         try runTask(task: taskName)
     }
 
     fileprivate func runTask(task taskName: String) throws {
-        guard let task = tasks.tasks.first(where: {$0.key == taskName}) else {
+        guard let task = tasks[taskName] else {
             printWarningTaskNotFound(taskName)
             return
         }
-        printer("> Running \"\(task.key)\"")
-        tasks.beforeEach.forEach { $0() }
-        try task.value.action()
-        tasks.afterEach.forEach { $0() }
+        printer("> Running \"\(taskName)\"")
+        beforeEach()
+        try task.action()
+        afterEach()
     }
 
 }

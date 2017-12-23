@@ -2,27 +2,6 @@ import Foundation
 import SakefileDescription
 import SakefileUtils
 
-// MARK: - Tasks
-
-enum Task: String, CustomStringConvertible {
-    case documentation = "docs"
-    case continuousIntegration = "ci"
-    case release = "release"
-    case updateFormula = "update_formula"
-    var description: String {
-        switch self {
-        case .documentation:
-            return "Generates the project documentation"
-        case .continuousIntegration:
-            return "Runs the the operations that are executed on CI"
-        case .release:
-            return "Releases a new version of the Sake"
-        case .updateFormula:
-            return "Updates the Homebrew formula version"
-        }
-    }
-}
-
 func generateDocs() throws {
     try Utils.shell.runAndPrint(bash: "swift package generate-xcodeproj")
     try Utils.shell.runAndPrint(bash: "bundle exec jazzy --clean --sdk macosx --xcodebuild-arguments -scheme,sake --skip-undocumented")
@@ -55,19 +34,19 @@ func updateFormula(version: String, branch: String) throws {
     try Utils.git.push(remote: "origin", branch: branch)
 }
 
-Sake<Task> {
-    try $0.task(.documentation) {
+Sake(tasks: [
+    Task("docs", description: "Generates the project documentation") {
         try generateDocs()
-    }
-    try $0.task(.continuousIntegration) {
+    },
+    Task("ci", description: "Runs the operations that are executed on CI") {
         print("> Linting the project")
         try Utils.shell.runAndPrint(bash: "swiftlint")
         print("> Building the project")
         try Utils.shell.runAndPrint(bash: "swift build")
         print("> Testing the project")
         try Utils.shell.runAndPrint(bash: "swift test")
-    }
-    try $0.task(.release) {
+    },
+    Task("release", description: "Releases a new version of Sake") {
         if try Utils.git.anyChanges() { throw "Commit all your changes before starting the release" }
         if try Utils.git.branch() != "master" { throw "The release process should be initialized from master" }
         let nextVersion = try Version(Utils.git.lastTag()).bumpingMinor()
@@ -75,4 +54,4 @@ Sake<Task> {
         try createVersion(version: nextVersion.string, branch: branch)
         try updateFormula(version: nextVersion.string, branch: branch)
     }
-}.run()
+]).run()
