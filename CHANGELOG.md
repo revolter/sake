@@ -8,6 +8,10 @@
 
 ### Fixed
 - Right alignment when printing tasks https://github.com/xcodeswift/sake/pull/28 by @pepibumur.
+- Xcode not being able to run Sake because there was no `main.swift` file https://github.com/xcodeswift/sake/pull/36 by @pepibumur.
+
+### Removed
+- The need to call `run()` to execute the tasks https://github.com/xcodeswift/sake/pull/36 by @pepibumur.
 
 ### Added
 - Throw an error when trying to register the same task more than once https://github.com/xcodeswift/sake/pull/29 by @pepibumur.
