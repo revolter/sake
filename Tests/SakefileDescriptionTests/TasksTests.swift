@@ -22,7 +22,7 @@ final class TasksTests: XCTestCase {
                     try $0.task(.a) { }
                     try $0.task(.a) { }
         }
-        XCTAssertEqual(printed, "> Error initializing tasks: Trying to register task a that is already registered")
+        XCTAssertEqual(printed, "Error initializing tasks: Trying to register task a that is already registered")
         XCTAssertEqual(exited, 1)
     }
     
@@ -36,7 +36,7 @@ final class TasksTests: XCTestCase {
                     try $0.task(task: task)
                     try $0.task(task: task)
         }
-        XCTAssertEqual(printed, "> Error initializing tasks: Trying to register task a that is already registered")
+        XCTAssertEqual(printed, "Error initializing tasks: Trying to register task a that is already registered")
         XCTAssertEqual(exited, 1)
     }
     

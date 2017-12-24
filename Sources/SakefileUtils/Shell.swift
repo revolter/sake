@@ -1,7 +1,8 @@
 import Foundation
+import SakefileDescription
 
 /// Shell error
-public struct ShellError: Error, CustomStringConvertible {
+public struct ShellError: Error, CustomStringConvertible, ShellExitCoding {
 
     /// Exit code
     public let exitCode: Int32

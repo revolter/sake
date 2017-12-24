@@ -108,7 +108,7 @@ public class RunSakefile {
             }
             try runBashCommand(bashCommand)
         } catch {
-            throw "Error processing your Sakefile.swift. Use --verbose to get more details about the problem."
+            throw "Something went wrong running Sakefile.swift. Use --verbose to get more details about the problem."
         }
     }
 

@@ -72,7 +72,7 @@ extension Sake {
             return
         }
         guard let argument = arguments.first else {
-            printer("> Error: Missing argument")
+            printer("Error: Missing argument")
             exiter(1)
             return
         }
@@ -80,19 +80,23 @@ extension Sake {
             printTasks()
         } else if argument == "task" {
             if arguments.count != 2 {
-                printer("> Error: Missing task name")
+                printer("Error: Missing task name")
                 exiter(1)
                 return
             }
             do {
                 try runTaskAndDependencies(task: arguments[1])
+            } catch let shellExitError as ShellExitCoding {
+                printer("Error: \(shellExitError)")
+                exiter(shellExitError.exitCode)
+                return
             } catch {
-                printer("> Error: \(error)")
+                printer("Error: \(error)")
                 exiter(1)
                 return
             }
         } else {
-            printer("> Error: Invalid argument")
+            printer("Error: Invalid argument")
             exiter(1)
         }
     }
