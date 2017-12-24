@@ -40,21 +40,11 @@ public class GenerateSakefile {
         import SakefileDescription
         import SakefileUtils
 
-        enum Task: String, CustomStringConvertible {
-            case build
-            var description: String {
-                switch self {
-                    case .build:
-                        return "Builds the project"
-                }
-            }
-        }
-
-        Sake<Task> {
-            try $0.task(.build) {
+        Sake(tasks: [
+            Task("build", description: "Builds the project") {
                 // Here is where you define your build task
             }
-        }.run()
+        ]).run()
         """
     }
 
