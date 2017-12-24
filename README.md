@@ -89,7 +89,11 @@ You can edit the `Sakefile.swift` using any text editor. Nonetheless, we recomme
 sake generate-xcodeproj
 ```
 
-> :warning: Note: Xcode can only run Swift code in a `main.swift` file. Since the name of the file is `Sakefile.swift` you'll get some Xcode warnings. Ignore them!
+> :warning: Note: You shouldn't modify the content in the main.swift file. Your `Sakefile.swift` shoudl contain a top level variable named sake in order for Xcode to be able to run Sake.
+
+To define the arguments to be passed to Sake you can edit the Scheme as shown in the screenshot below and add your aguments there:
+
+![scheme](Assets/Scheme.png) 
 
 #### Tasks ✅
 
