@@ -2,70 +2,118 @@ import Foundation
 
 // MARK: - Sake
 
+/// Sake hooks
+///
+/// - beforeAll: before all the tasks get executed.
+/// - afterAll: after all the tasks get executed.
+/// - beforeEach: before each task gets executed.
+/// - afterEach: after each task gets executed.
+public enum Hook {
+    case beforeAll(() -> Void)
+    case afterAll(() -> Void)
+    case beforeEach(() -> Void)
+    case afterEach(() -> Void)
+    var beforeAll: (() -> Void)? {
+        switch self {
+        case .beforeAll(let closure): return closure
+        default: return nil
+        }
+    }
+    var afterAll: (() -> Void)? {
+        switch self {
+        case .afterAll(let closure): return closure
+        default: return nil
+        }
+    }
+    var beforeEach: (() -> Void)? {
+        switch self {
+        case .beforeEach(let closure): return closure
+        default: return nil
+        }
+    }
+    var afterEach: (() -> Void)? {
+        switch self {
+        case .afterEach(let closure): return closure
+        default: return nil
+        }
+    }
+}
+
 public final class Sake {
-
+    
     var tasks: [String: Task]
+    var taskError: Error?
+    let hooks: [Hook]
     fileprivate let printer: (String) -> Void
-    fileprivate let exiter: (Int32) -> ()
-
-    public typealias Hook = () -> Void
-
-    /// Hooks
-    var beforeAll: Hook
-    var beforeEach: Hook
-    var afterEach: Hook
-    var afterAll: Hook
-
-    var taskError: String?
-
+    fileprivate let exiter: (Int32) -> Void
+    
     @discardableResult
-    public init(tasks: [Task],
-                printer: @escaping (String) -> Void = { print($0) },
-                beforeAll: @escaping Hook = {},
-                beforeEach: @escaping Hook = {},
-                afterEach: @escaping Hook = {},
-                afterAll: @escaping Hook = {}) {
+    internal init(tasks: [Task],
+                  hooks: [Hook],
+                  printer: @escaping (String) -> Void,
+                  exiter: @escaping (Int32) -> Void,
+                  arguments: [String]? = nil) {
+        let tasksByNameResult = Sake.tasksByName(tasks)
+        self.tasks = tasksByNameResult.tasks ?? [:]
+        self.taskError = tasksByNameResult.error
+        self.hooks = hooks
         self.printer = printer
-
+        self.exiter = exiter
+        if let arguments = arguments {
+            self.run(arguments: arguments)
+        } else {
+            self.run()
+        }
+    }
+    
+    public convenience init(tasks: [Task],
+                            hooks: [Hook] = []) {
+        self.init(tasks: tasks,
+                  hooks: hooks,
+                  printer: { print($0) },
+                  exiter: { exit($0) })
+    }
+    
+    /// Groups the tasks by name in a dictionary.
+    ///
+    /// - Parameter tasks: tasks to be grouped
+    /// - Returns: returns either an the grouped tasks or an error if there are duplicated tasks or tasks with non-existing dependencies
+    static func tasksByName(_ tasks: [Task]) -> (tasks: [String: Task]?, error: Error?) {
         var tasksByName: [String: Task] = [:]
-
-        // check that tasks aren't already registered
+        var error: Error?
         for task in tasks {
             if tasksByName[task.name] != nil {
-                taskError = "Trying to register task \(task.name) that is already registered"
+                error = "Trying to register task \(task.name) that is already registered"
             } else {
                 tasksByName[task.name] = task
             }
         }
-
-        // check that tasks don't have any invalid dependencies
         for task in tasks {
             for dependency in task.dependencies {
                 if tasksByName[dependency] == nil {
-                    taskError = "Task \(task.name) has a dependency \(dependency) that can't be found"
+                    error = "Task \(task.name) has a dependency \(dependency) that can't be found"
                 }
             }
         }
-        self.tasks = tasksByName
-
-        self.beforeAll = beforeAll
-        self.beforeEach = beforeEach
-        self.afterAll = afterAll
-        self.afterEach = afterEach
+        if let error = error {
+            return (tasks: nil, error: error)
+        } else {
+            return (tasks: tasksByName, error: nil)
+        }
     }
+    
 }
 
 // MARK: - Sake (Runner)
 
 extension Sake {
-
+    
     func run() {
         var arguments = CommandLine.arguments
         arguments.remove(at: 0)
-        
         run(arguments: arguments)
     }
-
+    
     func run(arguments: [String]) {
         if let taskError = taskError {
             printer("> Error initializing tasks: \(taskError)")
@@ -100,9 +148,9 @@ extension Sake {
             exiter(1)
         }
     }
-
+    
     // MARK: - Fileprivate
-
+    
     fileprivate func printTasks() {
         let longestName = tasks.keys.reduce(0, { $1.count > $0  ? $1.count : $0 })
         let margin = 5
@@ -117,7 +165,7 @@ extension Sake {
     }
     
     fileprivate func printWarningTaskNotFound(_ task: String) {
-        var alertMessage = "> [!] Could not find task '\(task)'"
+        var alertMessage = "[!] Could not find task '\(task)'"
         if let suggestedTaskName = findSuggestionTaskName(for: task) {
             alertMessage += ". Maybe did you mean '\(suggestedTaskName)'?"
         }
@@ -138,29 +186,29 @@ extension Sake {
             .min { $0.distance < $1.distance }
         return taskWithDistance?.taskName
     }
-
+    
     fileprivate func runTaskAndDependencies(task taskName: String) throws {
         guard let task = tasks[taskName] else {
             printWarningTaskNotFound(taskName)
             exiter(1)
             return
         }
-        beforeAll()
-        defer { afterAll() }
+        hooks.forEach({ $0.beforeAll?() })
+        defer { hooks.forEach({ $0.afterAll?() }) }
         try task.dependencies.forEach { try runTask(task: $0) }
         try runTask(task: taskName)
     }
-
+    
     fileprivate func runTask(task taskName: String) throws {
         guard let task = tasks[taskName] else {
             printWarningTaskNotFound(taskName)
             return
         }
-        printer("> Running \"\(taskName)\"")
-        beforeEach()
+        printer("Running \"\(taskName)\"")
+        hooks.forEach({ $0.beforeEach?() })
         try task.action()
-        afterEach()
+        hooks.forEach({ $0.afterEach?() })
     }
-
+    
 }
 

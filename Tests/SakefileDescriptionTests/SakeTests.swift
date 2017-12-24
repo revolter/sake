@@ -15,13 +15,15 @@ final class SakeTests: XCTestCase {
                 executionOutputs.append("run b")
             }
         ]
-        let subject = Sake(tasks: tasks,
-                           beforeAll: { executionOutputs.append("before_all") },
-                           beforeEach:  { executionOutputs.append("before_each") },
-                           afterEach: { executionOutputs.append("after_each") },
-                           afterAll: { executionOutputs.append("after_all") }
-        )
-        subject.run(arguments: ["task", "a"])
+        Sake(tasks: tasks,
+             hooks: [
+                .beforeAll({ executionOutputs.append("before_all") }),
+                .beforeEach({ executionOutputs.append("before_each") }),
+                .afterAll({ executionOutputs.append("after_all") }),
+                .afterEach({ executionOutputs.append("after_each") })],
+             printer: { _ in },
+             exiter: { _ in },
+             arguments: ["task", "a"])
         XCTAssertEqual(executionOutputs, [
             "before_all",
             "before_each",
@@ -33,12 +35,11 @@ final class SakeTests: XCTestCase {
             "after_all"
             ])
     }
-
+    
     func test_runTasks_printsTheCorrectString() throws {
         var printed = ""
         let tasks = [Task("a", "a description"), Task("b", "b description")]
-        let subject = Sake(tasks: tasks, printer: { printed += $0 })
-        subject.run(arguments: ["tasks"])
+        Sake(tasks: tasks, hooks: [], printer: { printed += $0 }, exiter: { _ in }, arguments: ["tasks"])
         let expected = """
             a:     a description
             b:     b description
@@ -48,31 +49,31 @@ final class SakeTests: XCTestCase {
     
     func test_runWrongTask_printSuggestedTaskName() throws {
         var printed = ""
+        var exited: Int32?
         let tasks = [Task("a", dependencies: ["b"], action:{}), Task("b", action:{})]
-        let subject = Sake(tasks: tasks, printer: { printed = $0 })
-        subject.run(arguments: ["task", "_"])
-        let expected = "> [!] Could not find task '_'"
+        Sake(tasks: tasks, hooks: [], printer: { printed = $0 }, exiter: { exited = $0 }, arguments: ["task", "_"])
+        let expected = "[!] Could not find task '_'"
         XCTAssertEqual(printed, expected)
         XCTAssertEqual(exited, 1)
     }
-
+    
     func test_shouldPrintAndThrow_whenTaskIsAlreadyRegistered() {
         var printed = ""
         let tasks = [Task("a"), Task("a")]
-        Sake(tasks: tasks, printer: { printed = $0 } ).run()
+        Sake(tasks: tasks, hooks: [], printer: { printed = $0 }, exiter: { _ in }, arguments: [])
         XCTAssertEqual(printed, "> Error initializing tasks: Trying to register task a that is already registered")
     }
-
+    
     func test_shouldPrintAndThrow_whenTheTaskHasInvalidDependency() {
         var printed = ""
         let tasks = [Task("a", dependencies: ["b"])]
-        Sake(tasks: tasks, printer: { printed = $0 } ).run()
+        Sake(tasks: tasks, hooks: [], printer: { printed = $0 }, exiter: { _ in }, arguments: [])
         XCTAssertEqual(printed, "> Error initializing tasks: Task a has a dependency b that can't be found")
     }
 }
 
 extension Task {
-
+    
     // Makes initializing Tasks for tests easier. Makes dependencies and action optional params
     convenience init(_ name: String, _ description: String = "", dependencies: [String] = [], action: @escaping () -> Void = {}) {
         self.init(name, description: description, dependencies: dependencies, action: action)
