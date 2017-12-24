@@ -9,17 +9,31 @@ final class GenerateProjectTests: XCTestCase {
     
     var pbxproj: PBXProj!
     var subject: GenerateProject!
+    var written: [(String, Path)]!
     
     override func setUp() {
         super.setUp()
+        written = []
         subject = GenerateProject(path: ".",
                                   write: { (project, _) in self.pbxproj = project.pbxproj },
+                                  stringWrite: { self.written.append(($0, $1)) },
                                   filedescriptionLibraryPath: { Path("/libraries/description.dylib") },
                                   utilsLibraryPath: { Path("/libraries/utils.dylib") },
                                   sakefilePath: { Path("Sakefile.swift") })
         try? subject.execute()
     }
     
+    func test_project_writesTheCorrectMainSwift() {
+        let expectedContent = """
+import Foundation
+
+// NOTE: Don't add anything to this file
+// There should be a top level variable named sake in your Sakefile.swift
+_ = sake
+"""
+        XCTAssertEqual(written.first?.0, expectedContent)
+        XCTAssertEqual(written.first?.1.lastComponent, "main.swift")
+    }
     
     func test_project_hasTheCorrectFileReferences() {
         XCTAssertTrue(pbxproj.objects.fileReferences.values.contains(PBXFileReference(reference: "FILE_REF_PRODUCT",
@@ -32,6 +46,11 @@ final class GenerateProjectTests: XCTestCase {
                                                                                       name: "Sakefile.swift",
                                                                                       lastKnownFileType: "sourcecode.swift",
                                                                                       path: "Sakefile.swift")))
+        XCTAssertTrue(pbxproj.objects.fileReferences.values.contains(PBXFileReference(reference: "FILE_REF_MAIN",
+                                                                                      sourceTree: .absolute,
+                                                                                      name: "main.swift",
+                                                                                      lastKnownFileType: "sourcecode.swift",
+                                                                                      path: written.first?.1.absolute().string ?? "")))
         XCTAssertTrue(pbxproj.objects.fileReferences.values.contains(PBXFileReference(reference: "FILE_REF_LIB",
                                                                                       sourceTree: .absolute,
                                                                                       name: "description.dylib",
@@ -73,7 +92,7 @@ final class GenerateProjectTests: XCTestCase {
                                                                                           buildActionMask: PBXFrameworksBuildPhase.defaultBuildActionMask,
                                                                                           runOnlyForDeploymentPostprocessing: 0)))
         XCTAssertTrue(pbxproj.objects.buildPhases.values.contains(PBXSourcesBuildPhase(reference: "SOURCE_BUILD_PHASE",
-                                                                                       files: ["BUILD_FILE_SAKEFILE"],
+                                                                                       files: ["BUILD_FILE_SAKEFILE", "BUILD_FILE_MAIN"],
                                                                                        buildActionMask: PBXSourcesBuildPhase.defaultBuildActionMask,
                                                                                        runOnlyForDeploymentPostprocessing: 0)))
         XCTAssertTrue(pbxproj.objects.buildPhases.values.contains(PBXCopyFilesBuildPhase(reference: "COPY_FILES_BUILD_PHASE",
@@ -92,6 +111,9 @@ final class GenerateProjectTests: XCTestCase {
                                                                                                     "LIBRARY_SEARCH_PATHS": "/libraries",
                                                                                                     "PRODUCT_NAME": "$(TARGET_NAME)",
                                                                                                     "SWIFT_INCLUDE_PATHS": "/libraries",
+                                                                                                    "LD_RUNPATH_SEARCH_PATHS": "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx @executable_path",
+                                                                                                    "SWIFT_FORCE_DYNAMIC_LINK_STDLIB": true,
+                                                                                                    "SWIFT_FORCE_STATIC_LINK_STDLIB": false,
                                                                                                     "SWIFT_VERSION": "4.0"])))
         XCTAssertTrue(pbxproj.objects.buildConfigurations.values.contains(XCBuildConfiguration(reference: "CONFIGURATION_PROJECT",
                                                                                                name: "Debug",

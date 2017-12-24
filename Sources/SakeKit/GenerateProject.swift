@@ -16,6 +16,9 @@ public class GenerateProject {
     /// Project writer.
     fileprivate let write: (XcodeProj, Path) throws -> Void
     
+    /// String writer.
+    fileprivate let stringWrite: (String, Path) throws -> Void
+    
     /// File description path.
     fileprivate let filedescriptionLibraryPath: () -> Path?
     
@@ -33,6 +36,7 @@ public class GenerateProject {
     convenience public init(path: String) {
         self.init(path: path,
                   write: { try $0.write(path: $1) },
+                  stringWrite: { try $1.write($0) },
                   filedescriptionLibraryPath: { Runtime.filedescriptionLibraryPath() },
                   utilsLibraryPath: { Runtime.utilsLibraryPath() },
                   sakefilePath: {
@@ -43,11 +47,13 @@ public class GenerateProject {
     
     init(path: String,
          write: @escaping (XcodeProj, Path) throws -> Void,
+         stringWrite: @escaping (String, Path) throws -> Void,
          filedescriptionLibraryPath: @escaping () -> Path?,
          utilsLibraryPath: @escaping () -> Path?,
          sakefilePath: @escaping () -> Path?) {
         self.path = path
         self.write = write
+        self.stringWrite = stringWrite
         self.filedescriptionLibraryPath = filedescriptionLibraryPath
         self.utilsLibraryPath = utilsLibraryPath
         self.sakefilePath = sakefilePath
@@ -83,10 +89,13 @@ public class GenerateProject {
 import Foundation
 
 // NOTE: Don't add anything to this file
+// There should be a top level variable named sake in your Sakefile.swift
+_ = sake
 """
-        if !mainSwiftPath.exists {
-            try mainSwiftPath.write(mainSwiftContent)
+        if mainSwiftPath.exists {
+            try mainSwiftPath.delete()
         }
+        try stringWrite(mainSwiftContent, mainSwiftPath)
         return mainSwiftPath
     }
     
@@ -206,6 +215,9 @@ import Foundation
                                                        buildSettings: [
                                                         "LIBRARY_SEARCH_PATHS": libraryPath.absolute().string,
                                                         "PRODUCT_NAME": "$(TARGET_NAME)",
+                                                        "LD_RUNPATH_SEARCH_PATHS": "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx @executable_path",
+                                                        "SWIFT_FORCE_DYNAMIC_LINK_STDLIB": true,
+                                                        "SWIFT_FORCE_STATIC_LINK_STDLIB": false,
                                                         "SWIFT_INCLUDE_PATHS": libraryPath.absolute().string,
                                                         "SWIFT_VERSION": "4.0"]))
         pbxproj.objects.addObject(XCBuildConfiguration(reference: "CONFIGURATION_PROJECT",
