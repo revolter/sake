@@ -7,13 +7,13 @@ Group {
         try GenerateSakefile(path: FileManager.default.currentDirectoryPath).execute()
     }
     let taskCommand = command(Argument<String>("task", description: "the task to be executed"),
-                              Flag("verbose", flag: "v", description: "print the logs verbosely", default: false)) { (task, verbose) in
+                              Flag("verbose", default: false, flag: "v", description: "print the logs verbosely")) { (task, verbose) in
                                 try RunSakefile(path: FileManager.default.currentDirectoryPath, arguments: ["task", task], verbose: verbose).execute()
     }
     let generateXcodeProjCommand = command {
         try GenerateProject(path: FileManager.default.currentDirectoryPath).execute()
     }
-    let tasksCommand = command(Flag("verbose", flag: "v", description: "print the logs verbosely", default: false)) { (verbose) in
+    let tasksCommand = command(Flag("verbose", default: false, flag: "v", description: "print the logs verbosely")) { (verbose) in
                                 try RunSakefile(path: FileManager.default.currentDirectoryPath, arguments: ["tasks"], verbose: verbose).execute()
     }
     $0.addCommand("init", "initializes a Sakefile in the current directory", initCommand)
