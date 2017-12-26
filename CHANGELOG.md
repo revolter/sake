@@ -9,6 +9,7 @@
 ### Fixed
 - Right alignment when printing tasks https://github.com/xcodeswift/sake/pull/28 by @pepibumur.
 - Xcode not being able to run Sake because there was no `main.swift` file https://github.com/xcodeswift/sake/pull/36 by @pepibumur.
+- Update project dependencies to their latest versions. PathKit to 0.9.0, xcproj to 1.7.0 and Commander to 0.8.0
 
 ### Removed
 - The need to call `run()` to execute the tasks https://github.com/xcodeswift/sake/pull/36 by @pepibumur.

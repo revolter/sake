@@ -11,9 +11,9 @@ let package = Package(
         .executable(name: "sake", targets: ["sake"])
     ],
     dependencies: [
-        .package(url: "https://github.com/kylef/PathKit.git", from: "0.8.0"),
-        .package(url: "https://github.com/xcodeswift/xcproj.git", from: "1.6.0"),
-        .package(url: "https://github.com/kylef/Commander.git", from: "0.6.1"),
+        .package(url: "https://github.com/kylef/PathKit.git", from: "0.9.0"),
+        .package(url: "https://github.com/xcodeswift/xcproj.git", from: "1.7.0"),
+        .package(url: "https://github.com/kylef/Commander.git", from: "0.8.0"),
         .package(url: "https://github.com/kareman/SwiftShell", from: "4.0.0")
     ],
     targets: [
