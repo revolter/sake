@@ -82,7 +82,7 @@ public class RunSakefile {
 
         var arguments: [String] = []
         arguments += ["--driver-mode=swift"]
-        
+        arguments += ["-suppress-warnings"]
         arguments += ["-L", filedescriptionLibraryPath.parent().normalize().string]
         arguments += ["-I", filedescriptionLibraryPath.parent().normalize().string]
         arguments += ["-lSakefileDescription"]

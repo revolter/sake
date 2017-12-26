@@ -52,5 +52,8 @@ Sake(tasks: [
         let branch = "release/\(nextVersion.string)"
         try createVersion(version: nextVersion.string, branch: branch)
         try updateFormula(version: nextVersion.string, branch: branch)
+    },
+    Task("test", description: "Runs tests") {
+        try Utils.shell.runAndPrint(bash: "swift test")
     }]
 )
