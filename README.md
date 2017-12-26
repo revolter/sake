@@ -111,6 +111,26 @@ sake task name_of_the_task
 sake tasks
 ```
 
+## Utils ☕️
+
+Sake includes some utils in `SakefileDescription` that might be useful for your tasks:
+
+```swift
+// Shell (examples)
+try Utils.shell.runAndPrint(bash: "swift build")
+try Utils.shell.run(bash: "swift build")
+
+// Git (examples)
+let branch = try Utils.git.branch()
+let anyChanges = try Utils.git.anyChanges()
+try Utils.git.commit(message: "my commit message")
+try Utils.git.tag("3.0.0)
+let tagstry Utils.git.tags()
+
+// HTTP (examples)
+let response = try Utils.http.execute(request: request, parse: { try GitHubRelease.init(data: $0) })
+```
+
 ## Sakefile Guidelines 🎨
 
 The Swift code written in the `Sakefile.swift` file should meet the following guidelines:
