@@ -1,5 +1,4 @@
 import Foundation
-import SakefileDescription
 
 /// Shell error
 public struct ShellError: Error, CustomStringConvertible, ShellExitCoding {
