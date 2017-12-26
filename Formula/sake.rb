@@ -22,9 +22,6 @@ class Sake < Formula
     lib.install "#{buildpath}/.build/release/libSakefileDescription.dylib"
     lib.install "#{buildpath}/.build/release/SakefileDescription.swiftdoc"
     lib.install "#{buildpath}/.build/release/SakefileDescription.swiftmodule"
-    lib.install "#{buildpath}/.build/release/libSakefileUtils.dylib"
-    lib.install "#{buildpath}/.build/release/SakefileUtils.swiftdoc"
-    lib.install "#{buildpath}/.build/release/SakefileUtils.swiftmodule"
   end
 
 end
