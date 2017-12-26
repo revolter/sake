@@ -36,10 +36,7 @@ public protocol Shelling {
 /// - Returns: cleaned output.
 func clean(output: String) -> String {
     var output = output
-    let firstnewline = output.index(of: "\n")
-    if firstnewline == nil || output.index(after: firstnewline!) == output.endIndex {
-        output = output.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
+    output = output.trimmingCharacters(in: .whitespacesAndNewlines)
     return output
 }
 
