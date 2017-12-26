@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 
-@testable import SakefileUtils
+@testable import SakefileDescription
 
 final class GitTests: XCTestCase {
     

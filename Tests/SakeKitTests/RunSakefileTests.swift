@@ -16,7 +16,6 @@ final class RunSakefileTests: XCTestCase {
                               verbose: false,
                               sakefilePath: { $0 + "Sakefile.swift" },
                               fileDescriptionLibraryPath: { return Path("/libraries/description.dylib") },
-                              utilsLibraryPath: { return Path("/utils/utils.dylib") },
                               runBashCommand: { (command) in
                             self.runCommand = command
         })
@@ -25,7 +24,7 @@ final class RunSakefileTests: XCTestCase {
     
     func test_execute_runsTheRightCommand() {
         print(runCommand)
-        XCTAssertEqual(runCommand, "exec 2>/dev/null; swiftc --driver-mode=swift -L /utils -I /utils -lSakefileUtils /project/Sakefile.swift tasks build")
+        XCTAssertEqual(runCommand, "exec 2>/dev/null; swiftc --driver-mode=swift -L /libraries -I /libraries -lSakefileDescription /project/Sakefile.swift tasks build")
     }
     
     

@@ -64,7 +64,6 @@ Sakefile is the file that defines your project tasks:
 ```swift
 // Sakefile
 import SakefileDescription
-import SakefileUtils
 
 Sake(tasks: [
   Task("build", description: "Builds the project") {

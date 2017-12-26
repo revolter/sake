@@ -18,7 +18,6 @@ final class GenerateProjectTests: XCTestCase {
                                   write: { (project, _) in self.pbxproj = project.pbxproj },
                                   stringWrite: { self.written.append(($0, $1)) },
                                   filedescriptionLibraryPath: { Path("/libraries/description.dylib") },
-                                  utilsLibraryPath: { Path("/libraries/utils.dylib") },
                                   sakefilePath: { Path("Sakefile.swift") })
         try? subject.execute()
     }
@@ -56,11 +55,6 @@ _ = sake
                                                                                       name: "description.dylib",
                                                                                       lastKnownFileType: "compiled.mach-o.dylib",
                                                                                       path: "/libraries/description.dylib")))
-        XCTAssertTrue(pbxproj.objects.fileReferences.values.contains(PBXFileReference(reference: "FILE_REF_LIB_UTILS",
-                                                                                      sourceTree: .absolute,
-                                                                                      name: "utils.dylib",
-                                                                                      lastKnownFileType: "compiled.mach-o.dylib",
-                                                                                      path: "/libraries/utils.dylib")))
     }
     
     func test_project_hasTheCorrectGroups() {
@@ -82,13 +76,11 @@ _ = sake
                                                                               fileRef: "FILE_REF_SAKEFILE")))
         XCTAssertTrue(pbxproj.objects.buildFiles.values.contains(PBXBuildFile(reference: "BUILD_FILE_LIB",
                                                                               fileRef: "FILE_REF_LIB")))
-        XCTAssertTrue(pbxproj.objects.buildFiles.values.contains(PBXBuildFile(reference: "BUILD_FILE_LIB_UTILS",
-                                                                              fileRef: "FILE_REF_LIB_UTILS")))
     }
  
     func test_project_hasTheCorrectBuildPhases() {
         XCTAssertTrue(pbxproj.objects.buildPhases.values.contains(PBXFrameworksBuildPhase(reference: "FRAMEWORKS_BUILD_PHASE",
-                                                                                          files: ["BUILD_FILE_LIB", "BUILD_FILE_LIB_UTILS"],
+                                                                                          files: ["BUILD_FILE_LIB"],
                                                                                           buildActionMask: PBXFrameworksBuildPhase.defaultBuildActionMask,
                                                                                           runOnlyForDeploymentPostprocessing: 0)))
         XCTAssertTrue(pbxproj.objects.buildPhases.values.contains(PBXSourcesBuildPhase(reference: "SOURCE_BUILD_PHASE",

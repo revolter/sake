@@ -38,7 +38,6 @@ public class GenerateSakefile {
     static func defaultContent() -> String {
         return """
         import SakefileDescription
-        import SakefileUtils
 
         Sake(tasks: [
             Task("build", description: "Builds the project") {

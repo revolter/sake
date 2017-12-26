@@ -25,9 +25,6 @@ public class RunSakefile {
     /// Returns the file description library path.
     let fileDescriptionLibraryPath: () -> Path?
 
-    /// Returns the utils library path.
-    let utilsLibraryPath: () -> Path?
-
     // MARK: - Init
 
     /// Default constructor.
@@ -44,7 +41,6 @@ public class RunSakefile {
                   verbose: verbose,
                   sakefilePath: RunSakefile.sakefilePath,
                   fileDescriptionLibraryPath: { Runtime.filedescriptionLibraryPath() },
-                  utilsLibraryPath: { Runtime.utilsLibraryPath() },
                   runBashCommand: { try runAndPrint(bash: $0) })
     }
 
@@ -56,21 +52,18 @@ public class RunSakefile {
     ///   - verbose: if it should print logs verbosely.
     ///   - sakefilePath: returns the Sakefile.swift path if it exists in the given directory.
     ///   - fileDescriptionLibraryPath: returns the file description library path.
-    ///   - utilsLibraryPath: returns the utils library path.
     ///   - runBashCommand: closure runs the bash command.
     init(path: String,
          arguments: [String],
          verbose: Bool,
          sakefilePath: @escaping (Path) -> Path?,
          fileDescriptionLibraryPath: @escaping () -> Path?,
-         utilsLibraryPath: @escaping () -> Path?,
          runBashCommand: @escaping (String) throws -> Void) {
         self.path = path
         self.arguments = arguments
         self.verbose = verbose
         self.sakefilePath = sakefilePath
         self.fileDescriptionLibraryPath = fileDescriptionLibraryPath
-        self.utilsLibraryPath = utilsLibraryPath
         self.runBashCommand = runBashCommand
     }
 
@@ -90,15 +83,9 @@ public class RunSakefile {
         var arguments: [String] = []
         arguments += ["--driver-mode=swift"]
         
-        if let utilsLibraryPath = utilsLibraryPath() {
-            arguments += ["-L", utilsLibraryPath.parent().normalize().string]
-            arguments += ["-I", utilsLibraryPath.parent().normalize().string]
-            arguments += ["-lSakefileUtils"]
-        } else {
-            arguments += ["-L", filedescriptionLibraryPath.parent().normalize().string]
-            arguments += ["-I", filedescriptionLibraryPath.parent().normalize().string]
-            arguments += ["-lSakefileDescription"]
-        }
+        arguments += ["-L", filedescriptionLibraryPath.parent().normalize().string]
+        arguments += ["-I", filedescriptionLibraryPath.parent().normalize().string]
+        arguments += ["-lSakefileDescription"]
         arguments += [sakefilePath.string]
         arguments += self.arguments
         do {

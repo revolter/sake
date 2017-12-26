@@ -1,6 +1,5 @@
 import Foundation
 import SakefileDescription
-import SakefileUtils
 
 func generateDocs() throws {
     try Utils.shell.runAndPrint(bash: "swift package generate-xcodeproj")

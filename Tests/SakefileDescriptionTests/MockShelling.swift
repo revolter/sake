@@ -1,6 +1,6 @@
 import Foundation
 
-@testable import SakefileUtils
+@testable import SakefileDescription
 
 final class MockShell: Shelling {
     

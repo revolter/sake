@@ -29,22 +29,4 @@ final class RuntimeTests: XCTestCase {
         XCTAssertNil(got)
     }
     
-    func test_utilsLibraryPath_returnsTheCorrectValue_whenTheLibraryExistsAtTheLibraryPath() {
-        librariesPath = "/test"
-        let got = Runtime.utilsLibraryPath { _ in return true }
-        let expected = Path("/test/libSakefileUtils.dylib")
-        XCTAssertEqual(got, expected)
-    }
-    
-    func test_utilsLibraryPath_returnsTheCorrectValue_whenTheLibraryExistsAtAnyLibraryFolder() {
-        let got = Runtime.utilsLibraryPath { $0 == Path(".build/release/libSakefileUtils.dylib") }
-        let expected = Path(".build/release/libSakefileUtils.dylib").absolute()
-        XCTAssertEqual(got, expected)
-        
-    }
-    
-    func test_utilsLibraryPath_returnsNil_whenTheLibraryDoesntExist() {
-        let got = Runtime.utilsLibraryPath { _ in return false }
-        XCTAssertNil(got)
-    }
 }
