@@ -2,9 +2,12 @@
 
 ## Next version
 
+### Added
+- Console feedback when the project gets generated successfully https://github.com/xcodeswift/sake/pull/48 by @pepibumur.
+
 ### Changed
-- removed the need for a `utils` instance that gets passed around. Use `Utils` instead https://github.com/xcodeswift/sake/pull/41 by @yonaskolb.
-- changed the way Tasks are configured https://github.com/xcodeswift/sake/pull/42 by @yonaskolb.
+- Removed the need for a `utils` instance that gets passed around. Use `Utils` instead https://github.com/xcodeswift/sake/pull/41 by @yonaskolb.
+- Changed the way Tasks are configured https://github.com/xcodeswift/sake/pull/42 by @yonaskolb.
 
 ### Fixed
 - Right alignment when printing tasks https://github.com/xcodeswift/sake/pull/28 by @pepibumur.

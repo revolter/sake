@@ -10,15 +10,18 @@ final class GenerateProjectTests: XCTestCase {
     var pbxproj: PBXProj!
     var subject: GenerateProject!
     var written: [(String, Path)]!
+    var printed: [String]!
     
     override func setUp() {
         super.setUp()
         written = []
+        printed = []
         subject = GenerateProject(path: ".",
                                   write: { (project, _) in self.pbxproj = project.pbxproj },
                                   stringWrite: { self.written.append(($0, $1)) },
                                   filedescriptionLibraryPath: { Path("/libraries/description.dylib") },
-                                  sakefilePath: { Path("Sakefile.swift") })
+                                  sakefilePath: { Path("Sakefile.swift") },
+                                  printer: { self.printed.append($0) })
         try? subject.execute()
     }
     
@@ -196,6 +199,10 @@ _ = sake
                                                                           projectRoot: "",
                                                                           targets: ["NATIVE_TARGET"],
                                                                           attributes: ["ORGANIZATIONNAME": "com.sake"])))
+    }
+    
+    func test_execute_printsThatTheProjectHasBeenGenerated() {
+        XCTAssertEqual(printed.first, "Project Sakefile.xcodeproj generated")
     }
     
 }

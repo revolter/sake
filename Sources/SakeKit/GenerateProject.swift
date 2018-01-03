@@ -24,6 +24,9 @@ public class GenerateProject {
     
     /// Sakefile path.
     fileprivate let sakefilePath: () -> Path?
+
+    /// Printer.
+    fileprivate let printer: (String) -> Void
     
     // MARK: - Init
     
@@ -37,20 +40,22 @@ public class GenerateProject {
                   filedescriptionLibraryPath: { Runtime.filedescriptionLibraryPath() },
                   sakefilePath: {
                     let path = Path("Sakefile.swift").absolute()
-                    return path.exists ? path : nil
-        })
+                    return path.exists ? path : nil },
+                  printer: { print($0) })
     }
     
     init(path: String,
          write: @escaping (XcodeProj, Path) throws -> Void,
          stringWrite: @escaping (String, Path) throws -> Void,
          filedescriptionLibraryPath: @escaping () -> Path?,
-         sakefilePath: @escaping () -> Path?) {
+         sakefilePath: @escaping () -> Path?,
+         printer: @escaping (String) -> Void) {
         self.path = path
         self.write = write
         self.stringWrite = stringWrite
         self.filedescriptionLibraryPath = filedescriptionLibraryPath
         self.sakefilePath = sakefilePath
+        self.printer = printer
     }
     
     // MARK: - Public
@@ -59,7 +64,8 @@ public class GenerateProject {
     ///
     /// - Throws: error if the generation fails.
     public func execute() throws {
-        let projectPath = URL.init(fileURLWithPath: path).appendingPathComponent("Sakefile.xcodeproj")
+        let projectName = "Sakefile.xcodeproj"
+        let projectPath = URL.init(fileURLWithPath: path).appendingPathComponent(projectName)
         if fileManager.fileExists(atPath: projectPath.path) {
             try fileManager.removeItem(at: projectPath)
         }
@@ -70,6 +76,7 @@ public class GenerateProject {
         let mainSwiftPath = try createMainSwiftIfNeeded()
         try setup(pbxproj: pbxproj, mainSwiftPath: mainSwiftPath)
         try write(project, Path(projectPath.path))
+        self.printer("Project \(projectName) generated")
     }
     
     fileprivate func createMainSwiftIfNeeded() throws -> Path {
