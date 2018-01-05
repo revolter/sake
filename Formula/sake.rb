@@ -3,7 +3,7 @@ class Sake < Formula
   homepage "https://github.com/xcodeswift/sake"
   version "0.3.0"
   url "https://github.com/xcodeswift/sake/archive/#{version}.tar.gz"
-  sha256 "3a118a91fbe8453d9c8278b20e09bb39b4f395ca05418391369fa91819352181"
+  sha256 "3beee23cfa61db167ec9220251cc34f5f1fc4d2b538bf370422f7c6d39f24828"
   head "https://github.com/xcodeswift/sake.git"
 
   depends_on :xcode
