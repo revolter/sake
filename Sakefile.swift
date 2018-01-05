@@ -7,7 +7,6 @@ func generateDocs() throws {
 }
 
 func createVersion(version: String, branch: String) throws {
-    try Utils.git.createBranch(branch)
     print("> Building the project")
     try Utils.shell.runAndPrint(bash: "swift build")
     print("> Generating docs")
@@ -47,7 +46,6 @@ Sake(tasks: [
     },
     Task("release", description: "Releases a new version of Sake") {
         if try Utils.git.anyChanges() { throw "Commit all your changes before starting the release" }
-        if try Utils.git.branch() != "master" { throw "The release process should be initialized from master" }
         let nextVersion = try Version(Utils.git.lastTag()).bumpingMinor()
         let branch = "release/\(nextVersion.string)"
         try createVersion(version: nextVersion.string, branch: branch)
