@@ -32,13 +32,31 @@ func updateFormula(version: String, branch: String) throws {
     try Utils.git.push(remote: "origin", branch: branch)
 }
 
-Sake(tasks: [
+func auditFormula() throws {
+    let currentFormulaPath = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+        .appendingPathComponent("Formula/sake.rb")
+        .absoluteURL
+        .path
+    let sakeFormulaPath = "/usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/sake.rb"
+    try Utils.shell.runAndPrint(bash: "rm -f \(sakeFormulaPath)")
+    try Utils.shell.runAndPrint(bash: "ln -s -f \(currentFormulaPath) \(sakeFormulaPath)")
+    do {
+        try Utils.shell.runAndPrint(bash: "brew audit sake --strict --online")
+    } catch {
+        try Utils.shell.runAndPrint(bash: "rm -rf \(sakeFormulaPath)")
+        throw error
+    }
+}
+
+let sake = Sake(tasks: [
     Task("docs", description: "Generates the project documentation") {
         try generateDocs()
     },
     Task("ci", description: "Runs the operations that are executed on CI") {
         print("> Linting the project")
         try Utils.shell.runAndPrint(bash: "swiftlint")
+        print("> Auditing formula")
+        try auditFormula()
         print("> Building the project")
         try Utils.shell.runAndPrint(bash: "swift build")
         print("> Testing the project")
@@ -53,5 +71,8 @@ Sake(tasks: [
     },
     Task("test", description: "Runs tests") {
         try Utils.shell.runAndPrint(bash: "swift test")
+    },
+    Task("audit-formula", description: "Audits the Homebrew formula") {
+        try auditFormula()
     }]
 )
