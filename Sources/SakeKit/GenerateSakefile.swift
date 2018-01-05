@@ -37,6 +37,7 @@ public class GenerateSakefile {
 
     static func defaultContent() -> String {
         return """
+        import Foundation
         import SakefileDescription
 
         let sake = Sake(tasks: [
