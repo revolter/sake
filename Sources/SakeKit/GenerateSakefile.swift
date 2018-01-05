@@ -39,7 +39,7 @@ public class GenerateSakefile {
         return """
         import SakefileDescription
 
-        Sake(tasks: [
+        let sake = Sake(tasks: [
             Task("build", description: "Builds the project") {
                 // Here is where you define your build task
             }],
