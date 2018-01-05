@@ -2,6 +2,8 @@
 
 ## Next version
 
+## 0.3.0
+
 ### Added
 - Console feedback when the project gets generated successfully https://github.com/xcodeswift/sake/pull/48 by @pepibumur.
 
