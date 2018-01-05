@@ -23,7 +23,7 @@ func updateFormula(version: String, branch: String) throws {
     let archiveURL = "https://github.com/xcodeswift/sake/archive/\(version).tar.gz"
     try Utils.shell.runAndPrint(bash: "curl -LSs \(archiveURL) -o sake.tar.gz")
     let sha = try Utils.shell.run(bash: "shasum -a 256 sake.tar.gz | awk '{printf $1}'")
-    _ = try Utils.shell.run(bash: "sed -i \"\" 's|version .*$|version \"\(version)\"|' \(formulaPath)")
+    _ = try Utils.shell.run(bash: "sed -i \"\" 's|url .*$|version \"https://github.com/xcodeswift/sake/archive/\(version).tar.gz\"|' \(formulaPath)")
     _ = try Utils.shell.run(bash: "sed -i \"\" 's|sha256 .*$|sha256 \"\(sha)\"|' \(formulaPath)")
     try Utils.shell.runAndPrint(bash: "rm sake.tar.gz")
     print("> Commiting and pushing the changes to release/\(version)")
