@@ -2,6 +2,9 @@
 
 ## Next version
 
+### Added
+- Sake task to audit the Homebrew formula and execute it from the CI task https://github.com/xcodeswift/sake/pull/51 by @pepibumur.
+
 ## 0.3.0
 
 ### Added
