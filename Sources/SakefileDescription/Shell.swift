@@ -1,8 +1,10 @@
 import Foundation
 
+typealias ShellOutput = (output: String?, exitCode: Int32)
+
 /// Shell error
 public struct ShellError: Error, CustomStringConvertible, ShellExitCoding {
-
+    
     /// Exit code
     public let exitCode: Int32
     
@@ -45,17 +47,24 @@ class CommandRunner {
     let command: String
     var outputQueue = DispatchQueue(label: "bash-output-queue")
     var outputData = Data()
-    var errorData = Data()
+    let printOutput: Bool
+    let collectOutputData: Bool
+    let process = Process()
+    let arguments: [String]
     
-    init(command: String) {
+    init(command: String,
+         arguments: [String],
+         printOutput: Bool,
+         collectOutputData: Bool = false) {
         self.command = command
+        self.arguments = arguments
+        self.printOutput = printOutput
+        self.collectOutputData = collectOutputData
     }
     
-    func launch() {
-        let process = Process()
-        process.launchPath = "/bin/bash"
-        process.arguments = ["-c", command]
-        
+    func launch() -> Int32 {
+        process.launchPath = command
+        process.arguments = arguments
         let outputPipe = Pipe()
         process.standardOutput = outputPipe
         let errorPipe = Pipe()
@@ -63,54 +72,52 @@ class CommandRunner {
         outputPipe.fileHandleForReading.waitForDataInBackgroundAndNotify()
         errorPipe.fileHandleForReading.waitForDataInBackgroundAndNotify()
         let nc = NotificationCenter.default
-        nc.addObserver(self, selector: #selector(receivedOutputData(notification:)),
+        nc.addObserver(self, selector: #selector(receivedData(notification:)),
                        name: NSNotification.Name.NSFileHandleDataAvailable,
                        object: outputPipe.fileHandleForReading)
-        nc.addObserver(self, selector: #selector(receivedOutputError(notification:)),
+        nc.addObserver(self, selector: #selector(receivedData(notification:)),
                        name: NSNotification.Name.NSFileHandleDataAvailable,
                        object: errorPipe.fileHandleForReading)
-        launch()
+        process.launch()
         process.waitUntilExit()
-        // Return error
+        return process.terminationStatus
     }
     
-    @objc func receivedOutputData(notification: NSNotification) {
+    func terminate() {
+        process.terminate()
+    }
+    
+    @objc func receivedData(notification: NSNotification) {
         let handle = notification.object! as! FileHandle
         let data = handle.availableData
         if data.count == 0 { return }
         outputQueue.async { [unowned self] in
+            if self.printOutput {
+                if let line = String(data: data, encoding: .utf8) {
+                    print(clean(output: line))
+                }
+            }
+            if !self.collectOutputData { return }
             self.outputData.append(data)
+            
         }
     }
     
-    @objc func receivedOutputError(notification: NSNotification) {
-        let handle = notification.object! as! FileHandle
-        let data = handle.availableData
-        if data.count == 0 { return }
-        outputQueue.async { [unowned self] in
-            self.errorData.append(data)
-        }
-    }
-
 }
 
 // MARK: - Shell
 
 public final class Shell: Shelling {
     
-    typealias Execute = (_ launchPath: String, _ arguments: [String], _ printing: Bool, _ output: Bool) -> ShellCommandExecutor.ShellOutput
-    
     // MARK: - Attributes
     
-    fileprivate let execute: Execute
-//    fileprivate static var activeCommand: ShellCommandExecutor?
+    fileprivate static var activeCommandRunner: CommandRunner?
     
     // MARK: - Init
     
-    init(execute: @escaping Execute = Shell.execute) {
-        self.execute = execute
+    init() {
         Signals.trap(signal: .int) { signal in
-//            Shell.activeCommand?.process.terminate()
+            Shell.activeCommandRunner?.terminate()
         }
     }
     
@@ -129,7 +136,7 @@ public final class Shell: Shelling {
     }
     
     public func runAndPrint(command: String, _ args: [String]) throws {
-        let result = execute(command: command, printing: true, output: false, args)
+        let result = execute(command: command, arguments: args, printing: true, output: false)
         if result.exitCode != 0 {
             throw ShellError(exitCode: result.exitCode)
         }
@@ -140,7 +147,7 @@ public final class Shell: Shelling {
     }
     
     public func run(command: String, _ args: [String]) throws -> String {
-        let result = execute(command: command, printing: false, output: true, args)
+        let result = execute(command: command, arguments: args, printing: false, output: true)
         if result.exitCode == 0 {
             return result.output ?? ""
         } else {
@@ -150,30 +157,30 @@ public final class Shell: Shelling {
     
     // MARK: - Fileprivate
     
-    @discardableResult fileprivate func execute(command: String,
-                                                printing: Bool,
-                                                output: Bool,
-                                                _ args: [String]) -> ShellCommandExecutor.ShellOutput {
-        func launchpath(_ command: String) -> String {
-            if command.contains("/") { return command }
-            let result = execute("/user/bin/which", [command], false, true)
-            return result.output ?? command
+    func execute(command: String,
+                 arguments: [String],
+                 printing: Bool,
+                 output: Bool) -> ShellOutput {
+        if !command.contains("/") {
+            let result = execute(command: "/user/bin/which",
+                                 arguments: [command],
+                                 printing: false,
+                                 output: true)
+            let absoluteCommand = result.output ?? command
+            return execute(command: absoluteCommand, arguments: arguments, printing: printing, output: output)
         }
-        return execute(launchpath(command), args, printing, output)
+        let runner = CommandRunner(command: command,
+                                   arguments: arguments,
+                                   printOutput: printing,
+                                   collectOutputData: output)
+        Shell.activeCommandRunner = runner
+        let exitCode = runner.launch()
+        Shell.activeCommandRunner = nil
+        var outputString: String?
+        if output {
+            outputString = String.init(data: runner.outputData, encoding: .utf8)
+        }
+        return (output: outputString, exitCode: exitCode)
     }
     
-    fileprivate static func execute(launchPath: String,
-                                    arguments: [String],
-                                    printing: Bool,
-                                    output: Bool) -> ShellCommandExecutor.ShellOutput {
-        let command = ShellCommandExecutor(launchPath: launchPath,
-                                           arguments: arguments,
-                                           printing: printing,
-                                           output: output)
-        Shell.activeCommand = command
-        let output = command.execute()
-        Shell.activeCommand = nil
-        return output
-    }
-
 }
