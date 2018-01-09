@@ -45,7 +45,6 @@ func clean(output: String) -> String {
 class CommandRunner {
     
     let command: String
-    var outputQueue = DispatchQueue(label: "bash-output-queue")
     var outputData = Data()
     let printOutput: Bool
     let collectOutputData: Bool
@@ -69,15 +68,23 @@ class CommandRunner {
         process.standardOutput = outputPipe
         let errorPipe = Pipe()
         process.standardError = errorPipe
-        outputPipe.fileHandleForReading.waitForDataInBackgroundAndNotify()
-        errorPipe.fileHandleForReading.waitForDataInBackgroundAndNotify()
-        let nc = NotificationCenter.default
-        nc.addObserver(self, selector: #selector(receivedData(notification:)),
-                       name: NSNotification.Name.NSFileHandleDataAvailable,
-                       object: outputPipe.fileHandleForReading)
-        nc.addObserver(self, selector: #selector(receivedData(notification:)),
-                       name: NSNotification.Name.NSFileHandleDataAvailable,
-                       object: errorPipe.fileHandleForReading)
+        let outputQueue = DispatchQueue(label: "bash-output-queue")
+        let receivedOutputData: (FileHandle) -> Void = { handle in
+            let data = handle.availableData
+            if data.count == 0 { return }
+            outputQueue.async {
+                if self.printOutput {
+                    if let line = String(data: data, encoding: .utf8) {
+                        print(clean(output: line))
+                    }
+                }
+                if !self.collectOutputData { return }
+                self.outputData.append(data)
+                
+            }
+        }
+        outputPipe.fileHandleForReading.readabilityHandler = receivedOutputData
+        errorPipe.fileHandleForReading.readabilityHandler = receivedOutputData
         process.launch()
         process.waitUntilExit()
         return process.terminationStatus
@@ -86,23 +93,6 @@ class CommandRunner {
     func terminate() {
         process.terminate()
     }
-    
-    @objc func receivedData(notification: NSNotification) {
-        let handle = notification.object! as! FileHandle
-        let data = handle.availableData
-        if data.count == 0 { return }
-        outputQueue.async { [unowned self] in
-            if self.printOutput {
-                if let line = String(data: data, encoding: .utf8) {
-                    print(clean(output: line))
-                }
-            }
-            if !self.collectOutputData { return }
-            self.outputData.append(data)
-            
-        }
-    }
-    
 }
 
 // MARK: - Shell
