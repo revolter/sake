@@ -40,122 +40,58 @@ func clean(output: String) -> String {
     return output
 }
 
-// MARK: - StandardOutputStream
-
-class StandardOutOutputStream: OutputStream {
+class CommandRunner {
     
-    /// True if the stream prints the output in the console (line by line)
-    let printing: Bool
+    let command: String
+    var outputQueue = DispatchQueue(label: "bash-output-queue")
+    var outputData = Data()
+    var errorData = Data()
     
-    /// True if the output from the stream has to be saved.
-    let output: Bool
-    
-    /// Output data.
-    var data: Data = Data()
-    
-    /// Function that the stream uses to print the written data.
-    let printer: (String) -> ()
-    
-    /// Initializes the StandardOutputStream with its attributes.
-    ///
-    /// - Parameters:
-    ///   - printing: true if the output of the command execution should be printed in real time.
-    ///   - output: true if the output of the script should be kept in memory.
-    init(printing: Bool = true, output: Bool = false, printer: @escaping (String) -> () = { print($0) }) {
-        self.printing = printing
-        self.output = output
-        self.printer = printer
-        super.init(toMemory: ())
+    init(command: String) {
+        self.command = command
     }
     
-    /// Writes data to the stream.
-    ///
-    /// - Parameters:
-    ///   - buffer: buffer of data to be written.
-    ///   - len: number of bytes to be written.
-    /// - Returns: written length.
-    override func write(_ buffer: UnsafePointer<UInt8>, maxLength len: Int) -> Int {
-        let data = Data.init(bytes: buffer, count: len)
-        if output {
-            self.data.append(data)
-        }
-        let text = String(data: data, encoding: .utf8)
-        if printing {
-            self.printer(clean(output: "\(text ?? "")"))
-        }
-        return len
-    }
-}
-
-// MARK: - ShellCommandExecutor
-
-class ShellCommandExecutor {
-    
-    typealias ShellOutput = (output: String?, exitCode: Int32)
-    typealias ProcessLauncher = (Process, StandardOutOutputStream) -> ShellOutput
-    
-    /// Output stream.
-    let outputStream: StandardOutOutputStream
-    
-    /// Process.
-    let process: Process
-    
-    /// Launcher
-    let launcher: ProcessLauncher
-    
-    /// Initializes the CommandExecutor.
-    ///
-    /// - Parameters:
-    ///   - launchPath: launch path.
-    ///   - arguments: arguments.
-    ///   - outputStream: output stream.
-    init(launchPath: String,
-         arguments: [String],
-         outputStream: StandardOutOutputStream = StandardOutOutputStream(),
-         launcher: @escaping ProcessLauncher = ShellCommandExecutor.launch) {
-        self.outputStream = outputStream
-        self.process = Process()
-        self.process.launchPath = launchPath
-        self.process.standardInput = Pipe()
-        self.process.arguments = arguments
-        let pipe = ShellCommandExecutor.outputStreamWritingPipe(outputStream: outputStream)
-        process.standardOutput = pipe
-        process.standardError = pipe
-        self.launcher = launcher
-    }
-    
-    /// Executes the command.
-    ///
-    /// - Returns: output string and exit code.
-    func execute() -> ShellOutput {
-        let result = launcher(process, outputStream)
-        return (output: result.output.map(clean), exitCode: result.exitCode)
-    }
-    
-    /// It returns the pipe to send the output through.
-    ///
-    /// - Returns: pipe to be used as the output pipe for the process.
-    static func outputStreamWritingPipe(outputStream: OutputStream) -> Pipe {
+    func launch() {
+        let process = Process()
+        process.launchPath = "/bin/bash"
+        process.arguments = ["-c", command]
+        
         let outputPipe = Pipe()
-        outputPipe.fileHandleForReading.readabilityHandler = { handle in
-            let data = handle.availableData
-            if data.count > 0 {
-                _ = outputStream.write([UInt8](data), maxLength: data.count)
-            }
-        }
-        return outputPipe
-    }
-    
-    static func launch(process: Process, outputStream: StandardOutOutputStream) -> ShellOutput {
-        process.launch()
+        process.standardOutput = outputPipe
+        let errorPipe = Pipe()
+        process.standardError = errorPipe
+        outputPipe.fileHandleForReading.waitForDataInBackgroundAndNotify()
+        errorPipe.fileHandleForReading.waitForDataInBackgroundAndNotify()
+        let nc = NotificationCenter.default
+        nc.addObserver(self, selector: #selector(receivedOutputData(notification:)),
+                       name: NSNotification.Name.NSFileHandleDataAvailable,
+                       object: outputPipe.fileHandleForReading)
+        nc.addObserver(self, selector: #selector(receivedOutputError(notification:)),
+                       name: NSNotification.Name.NSFileHandleDataAvailable,
+                       object: errorPipe.fileHandleForReading)
+        launch()
         process.waitUntilExit()
-        var output: String?
-        if outputStream.output {
-            output = String(data: outputStream.data, encoding: .utf8) ?? ""
-        }
-        return (output: output, exitCode: process.terminationStatus)
+        // Return error
     }
     
+    @objc func receivedOutputData(notification: NSNotification) {
+        let handle = notification.object! as! FileHandle
+        let data = handle.availableData
+        if data.count == 0 { return }
+        outputQueue.async { [unowned self] in
+            self.outputData.append(data)
+        }
+    }
+    
+    @objc func receivedOutputError(notification: NSNotification) {
+        let handle = notification.object! as! FileHandle
+        let data = handle.availableData
+        if data.count == 0 { return }
+        outputQueue.async { [unowned self] in
+            self.errorData.append(data)
+        }
+    }
+
 }
 
 // MARK: - Shell
@@ -167,14 +103,14 @@ public final class Shell: Shelling {
     // MARK: - Attributes
     
     fileprivate let execute: Execute
-    fileprivate static var activeCommand: ShellCommandExecutor?
+//    fileprivate static var activeCommand: ShellCommandExecutor?
     
     // MARK: - Init
     
     init(execute: @escaping Execute = Shell.execute) {
         self.execute = execute
         Signals.trap(signal: .int) { signal in
-            Shell.activeCommand?.process.terminate()
+//            Shell.activeCommand?.process.terminate()
         }
     }
     
@@ -232,7 +168,8 @@ public final class Shell: Shelling {
                                     output: Bool) -> ShellCommandExecutor.ShellOutput {
         let command = ShellCommandExecutor(launchPath: launchPath,
                                            arguments: arguments,
-                                           outputStream: StandardOutOutputStream(printing: printing, output: output))
+                                           printing: printing,
+                                           output: output)
         Shell.activeCommand = command
         let output = command.execute()
         Shell.activeCommand = nil
