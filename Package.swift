@@ -13,7 +13,7 @@ let package = Package(
         .package(url: "https://github.com/kylef/PathKit.git", .upToNextMajor(from: "0.9.0")),
         .package(url: "https://github.com/xcodeswift/xcproj.git", .upToNextMajor(from: "1.7.0")),
         .package(url: "https://github.com/kylef/Commander.git", .upToNextMajor(from: "0.8.0")),
-        .package(url: "https://github.com/kareman/SwiftShell.git", .upToNextMajor(from: "4.0.0"))
+        .package(url: "https://github.com/xcodeswift/SwiftShell.git", .revision("12d47f0ed2f9a8dc11b4bb6a0d9ba3d0cb053a56"))
     ],
     targets: [
         .target(name: "SakeKit", dependencies: ["xcproj", "PathKit", "SwiftShell"]),
