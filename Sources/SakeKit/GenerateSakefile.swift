@@ -1,4 +1,5 @@
 import Foundation
+import SwiftShell
 
 /// Generates a base Sakefile.swift
 public class GenerateSakefile {
@@ -32,11 +33,13 @@ public class GenerateSakefile {
         }
         try GenerateSakefile.defaultContent()
             .write(to: sakefilePath, atomically: true, encoding: .utf8)
+        _ = run(bash: "chmod a+x \(sakefilePath.absoluteString)")
         print("Sakefile.swift generated")
     }
 
     static func defaultContent() -> String {
         return """
+        // #!/usr/bin/env sake --path
         import Foundation
         import SakefileDescription
 

@@ -1,3 +1,5 @@
+#!/usr/bin/env sake --path
+
 import Foundation
 import SakefileDescription
 

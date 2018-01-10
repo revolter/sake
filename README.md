@@ -62,7 +62,7 @@ brew install sake
 Sakefile is the file that defines your project tasks:
 
 ```swift
-// Sakefile
+// #!/usr/bin/env sake --path
 import SakefileDescription
 
 Sake(tasks: [
@@ -111,6 +111,8 @@ sake task name_of_the_task
 sake tasks
 ```
 
+> Shebang: You can run your `Sakefile.swift` directly calling `./Sakefile.swift`
+
 ## Utils ☕️
 
 Sake includes some utils in `SakefileDescription` that might be useful for your tasks:
@@ -137,7 +139,6 @@ The Swift code written in the `Sakefile.swift` file should meet the following gu
 
 - It shouldn't fail the execution either using `fatalError` or force unwrapping nil values. Failing the execution causes the tool to print the stack trace in the console. Instead throw errors that are handled by `Sake` and nicely printed into the console.
 - Code should be synchronous and tasks should be completed by the time the closure execution ends.
-
 
 ## License
 
