@@ -2,6 +2,15 @@
 
 ## Next version
 
+## 0.5.0
+
+### Added
+- SwiftShell as the main shell library - by @pepibumur
+
+### Fixed
+- Sake processes not getting killed when the execution was interrupted - by @pepibumur.
+
+
 ### Added
 - Sake task to audit the Homebrew formula and execute it from the CI task https://github.com/xcodeswift/sake/pull/51 by @pepibumur.
 
