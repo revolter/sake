@@ -4,6 +4,6 @@ import Foundation
 public protocol ShellExitCoding {
     
     /// Shell exit code.
-    var exitCode: Int32 { get }
+    var exitCode: Int { get }
 
 }

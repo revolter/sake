@@ -1,15 +1,16 @@
 import Foundation
+import SwiftShell
 
 /// Shell error
 public struct ShellError: Error, CustomStringConvertible, ShellExitCoding {
 
     /// Exit code
-    public let exitCode: Int32
+    public let exitCode: Int
     
     /// Initializes the ShellError with the exit code
     ///
     /// - Parameter exitCode: exit code
-    init(exitCode: Int32) {
+    init(exitCode: Int) {
         self.exitCode = exitCode
     }
     
@@ -87,156 +88,40 @@ class StandardOutOutputStream: OutputStream {
     }
 }
 
-// MARK: - ShellCommandExecutor
-
-class ShellCommandExecutor {
-    
-    typealias ShellOutput = (output: String?, exitCode: Int32)
-    typealias ProcessLauncher = (Process, StandardOutOutputStream) -> ShellOutput
-    
-    /// Output stream.
-    let outputStream: StandardOutOutputStream
-    
-    /// Process.
-    let process: Process
-    
-    /// Launcher
-    let launcher: ProcessLauncher
-    
-    /// Initializes the CommandExecutor.
-    ///
-    /// - Parameters:
-    ///   - launchPath: launch path.
-    ///   - arguments: arguments.
-    ///   - outputStream: output stream.
-    init(launchPath: String,
-         arguments: [String],
-         outputStream: StandardOutOutputStream = StandardOutOutputStream(),
-         launcher: @escaping ProcessLauncher = ShellCommandExecutor.launch) {
-        self.outputStream = outputStream
-        self.process = Process()
-        self.process.launchPath = launchPath
-        self.process.standardInput = Pipe()
-        self.process.arguments = arguments
-        let pipe = ShellCommandExecutor.outputStreamWritingPipe(outputStream: outputStream)
-        process.standardOutput = pipe
-        process.standardError = pipe
-        self.launcher = launcher
-    }
-    
-    /// Executes the command.
-    ///
-    /// - Returns: output string and exit code.
-    func execute() -> ShellOutput {
-        let result = launcher(process, outputStream)
-        return (output: result.output.map(clean), exitCode: result.exitCode)
-    }
-    
-    /// It returns the pipe to send the output through.
-    ///
-    /// - Returns: pipe to be used as the output pipe for the process.
-    static func outputStreamWritingPipe(outputStream: OutputStream) -> Pipe {
-        let outputPipe = Pipe()
-        outputPipe.fileHandleForReading.readabilityHandler = { handle in
-            let data = handle.availableData
-            if data.count > 0 {
-                _ = outputStream.write([UInt8](data), maxLength: data.count)
-            }
-        }
-        return outputPipe
-    }
-    
-    static func launch(process: Process, outputStream: StandardOutOutputStream) -> ShellOutput {
-        process.launch()
-        process.waitUntilExit()
-        var output: String?
-        if outputStream.output {
-            output = String(data: outputStream.data, encoding: .utf8) ?? ""
-        }
-        return (output: output, exitCode: process.terminationStatus)
-    }
-    
-}
-
 // MARK: - Shell
 
 public final class Shell: Shelling {
     
-    typealias Execute = (_ launchPath: String, _ arguments: [String], _ printing: Bool, _ output: Bool) -> ShellCommandExecutor.ShellOutput
-    
-    // MARK: - Attributes
-    
-    fileprivate let execute: Execute
-    fileprivate static var activeCommand: ShellCommandExecutor?
-    
-    // MARK: - Init
-    
-    init(execute: @escaping Execute = Shell.execute) {
-        self.execute = execute
-        Signals.trap(signal: .int) { signal in
-            Shell.activeCommand?.process.terminate()
-        }
-    }
-    
     // MARK: - Shelling
     
     public func runAndPrint(bash: String) throws {
-        try runAndPrint(command: "/bin/bash", "-c", bash)
+        try SwiftShell.runAndPrint(bash: bash)
     }
     
     public func run(bash: String) throws -> String {
-        return try run(command: "/bin/bash", "-c", bash)
+        let output = SwiftShell.run(bash: bash)
+        if output.exitcode == 0 { return output.stdout }
+        throw ShellError(exitCode: output.exitcode)
     }
     
     public func runAndPrint(command: String, _ args: String...) throws {
-        try runAndPrint(command: command, args)
+        try SwiftShell.runAndPrint(command, args)
     }
     
     public func runAndPrint(command: String, _ args: [String]) throws {
-        let result = execute(command: command, printing: true, output: false, args)
-        if result.exitCode != 0 {
-            throw ShellError(exitCode: result.exitCode)
-        }
+        try SwiftShell.runAndPrint(command, args)
     }
     
     public func run(command: String, _ args: String...) throws -> String {
-        return try run(command: command, args)
+        let output = SwiftShell.run(command, args)
+        if output.exitcode == 0 { return output.stdout }
+        throw ShellError(exitCode: output.exitcode)
     }
     
     public func run(command: String, _ args: [String]) throws -> String {
-        let result = execute(command: command, printing: false, output: true, args)
-        if result.exitCode == 0 {
-            return result.output ?? ""
-        } else {
-            throw ShellError(exitCode: result.exitCode)
-        }
+        let output = SwiftShell.run(command, args)
+        if output.exitcode == 0 { return output.stdout }
+        throw ShellError(exitCode: output.exitcode)
     }
     
-    // MARK: - Fileprivate
-    
-    @discardableResult fileprivate func execute(command: String,
-                                                printing: Bool,
-                                                output: Bool,
-                                                _ args: [String]) -> ShellCommandExecutor.ShellOutput {
-        func launchpath(_ command: String) -> String {
-            if command.contains("/") { return command }
-            let result = execute("/user/bin/which", [command], false, true)
-            return result.output ?? command
-        }
-        return execute(launchpath(command), args, printing, output)
-    }
-    
-    fileprivate static func execute(launchPath: String,
-                                    arguments: [String],
-                                    printing: Bool,
-                                    output: Bool) -> ShellCommandExecutor.ShellOutput {
-        let command = ShellCommandExecutor(launchPath: launchPath,
-                                           arguments: arguments,
-                                           outputStream: StandardOutOutputStream(printing: printing, output: output))
-        Shell.activeCommand = command
-        let output = command.execute()
-        Shell.activeCommand = nil
-        return output
-    }
-
 }

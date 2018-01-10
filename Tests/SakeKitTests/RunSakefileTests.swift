@@ -13,7 +13,6 @@ final class RunSakefileTests: XCTestCase {
         super.setUp()
         subject = RunSakefile(path: "/project/",
                               arguments: ["tasks", "build"],
-                              verbose: false,
                               sakefilePath: { $0 + "Sakefile.swift" },
                               fileDescriptionLibraryPath: { return Path("/libraries/description.dylib") },
                               runBashCommand: { (command) in
@@ -24,7 +23,7 @@ final class RunSakefileTests: XCTestCase {
     
     func test_execute_runsTheRightCommand() {
         print(runCommand)
-        XCTAssertEqual(runCommand, "exec 2>/dev/null; swiftc --driver-mode=swift -suppress-warnings -L /libraries -I /libraries -lSakefileDescription /project/Sakefile.swift tasks build")
+        XCTAssertEqual(runCommand, "swiftc --driver-mode=swift -suppress-warnings -L /libraries -I /libraries -lSakefileDescription -lSwiftShell /project/Sakefile.swift tasks build")
     }
     
     

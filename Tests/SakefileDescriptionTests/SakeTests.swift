@@ -49,7 +49,7 @@ final class SakeTests: XCTestCase {
     
     func test_runWrongTask_printSuggestedTaskName() throws {
         var printed = ""
-        var exited: Int32?
+        var exited: Int?
         let tasks = [Task("a", dependencies: ["b"], action:{}), Task("b", action:{})]
         Sake(tasks: tasks, hooks: [], printer: { printed = $0 }, exiter: { exited = $0 }, arguments: ["task", "_"])
         let expected = "[!] Could not find task '_'"

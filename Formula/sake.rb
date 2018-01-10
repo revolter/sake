@@ -21,6 +21,8 @@ class Sake < Formula
     include.install "#{buildpath}/.build/release/libSakefileDescription.dylib"
     include.install "#{buildpath}/.build/release/SakefileDescription.swiftdoc"
     include.install "#{buildpath}/.build/release/SakefileDescription.swiftmodule"
+    include.install "#{buildpath}/.build/release/SwiftShell.swiftdoc"
+    include.install "#{buildpath}/.build/release/SwiftShell.swiftmodule"
   end
 
   test do

@@ -13,9 +13,6 @@ public class RunSakefile {
     /// Arguments to be passed.
     let arguments: [String]
 
-    /// Verbose
-    let verbose: Bool
-
     /// Run bash command.
     let runBashCommand: (String) throws -> ()
 
@@ -32,13 +29,10 @@ public class RunSakefile {
     /// - Parameters:
     ///   - path: path where the Sakefile.swift file is.
     ///   - arguments: arguments to be passed.
-    ///   - verbose: if it should print logs verbosely.
     convenience public init(path: String,
-                            arguments: [String],
-                            verbose: Bool) {
+                            arguments: [String]) {
         self.init(path: path,
                   arguments: arguments,
-                  verbose: verbose,
                   sakefilePath: RunSakefile.sakefilePath,
                   fileDescriptionLibraryPath: { Runtime.filedescriptionLibraryPath() },
                   runBashCommand: { try Utils.shell.runAndPrint(bash: $0) })
@@ -49,19 +43,16 @@ public class RunSakefile {
     /// - Parameters:
     ///   - path: path where the Sakefile.swift file is.
     ///   - arguments: arguments to be passed.
-    ///   - verbose: if it should print logs verbosely.
     ///   - sakefilePath: returns the Sakefile.swift path if it exists in the given directory.
     ///   - fileDescriptionLibraryPath: returns the file description library path.
     ///   - runBashCommand: closure runs the bash command.
     init(path: String,
          arguments: [String],
-         verbose: Bool,
          sakefilePath: @escaping (Path) -> Path?,
          fileDescriptionLibraryPath: @escaping () -> Path?,
          runBashCommand: @escaping (String) throws -> Void) {
         self.path = path
         self.arguments = arguments
-        self.verbose = verbose
         self.sakefilePath = sakefilePath
         self.fileDescriptionLibraryPath = fileDescriptionLibraryPath
         self.runBashCommand = runBashCommand
@@ -86,16 +77,14 @@ public class RunSakefile {
         arguments += ["-L", filedescriptionLibraryPath.parent().normalize().string]
         arguments += ["-I", filedescriptionLibraryPath.parent().normalize().string]
         arguments += ["-lSakefileDescription"]
+        arguments += ["-lSwiftShell"]
         arguments += [sakefilePath.string]
         arguments += self.arguments
         do {
-            var bashCommand = "swiftc \(arguments.joined(separator: " "))"
-            if !verbose {
-                bashCommand = "exec 2>/dev/null; \(bashCommand)"
-            }
+            let bashCommand = "swiftc \(arguments.joined(separator: " "))"
             try runBashCommand(bashCommand)
         } catch {
-            throw "Something went wrong running Sakefile.swift. Use --verbose to get more details about the problem."
+            throw "Running 'sake \(self.arguments.joined(separator: " "))' errored"
         }
     }
 

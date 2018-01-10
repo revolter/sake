@@ -45,13 +45,13 @@ public final class Sake {
     var taskError: Error?
     let hooks: [Hook]
     fileprivate let printer: (String) -> Void
-    fileprivate let exiter: (Int32) -> Void
+    fileprivate let exiter: (Int) -> Void
     
     @discardableResult
     internal init(tasks: [Task],
                   hooks: [Hook],
                   printer: @escaping (String) -> Void,
-                  exiter: @escaping (Int32) -> Void,
+                  exiter: @escaping (Int) -> Void,
                   arguments: [String]? = nil) {
         let tasksByNameResult = Sake.tasksByName(tasks)
         self.tasks = tasksByNameResult.tasks ?? [:]
@@ -71,7 +71,7 @@ public final class Sake {
         self.init(tasks: tasks,
                   hooks: hooks,
                   printer: { print($0) },
-                  exiter: { exit($0) })
+                  exiter: { exit(Int32($0)) })
     }
     
     /// Groups the tasks by name in a dictionary.
