@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>sake  Reference</title>
+    <link rel="stylesheet" type="text/css" href="css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/jazzy.js" defer></script>
+    
+  </head>
+  <body>
+    <a title="sake  Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="index.html">sake Docs</a> (0% documented)</p>
+        <p class="header-right"><a href="https://github.com/xcodeswift/sake"><img src="img/gh.png"/>View on GitHub</a></p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="index.html">sake Reference</a>
+        <img id="carat" src="img/carat.png" />
+        sake  Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            
+            <h1 id='sake-swift-make' class='heading'>Sake - Swift Make 🍶</h1>
+
+<p><img width="300" src="Assets/Logo.png"/></p>
+
+<p><a href="https://travis-ci.org/xcodeswift/sake">
+<img src="https://travis-ci.org/xcodeswift/sake.svg?branch=master" alt="Travis"/>
+</a>
+<a href="https://swift.org/package-manager">
+<img src="https://img.shields.io/badge/spm-compatible-brightgreen.svg?style=flat" alt="Swift Package Manager"/>
+</a>
+<a href="https://twitter.com/xcodedotswift">
+  <img src="https://img.shields.io/badge/contact-@xcodedotswift-blue.svg?style=flat" alt="Twitter: @xcodedotswift" />
+</a>
+<a href="https://github.com/xcodeswift/sake/releases">
+  <img src="https://img.shields.io/github/release/xcodeswift/sake.svg"/>
+</a>
+<a href="https://opensource.org/licenses/MIT">
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License" />
+</a>
+<a href="http://xcodeswift.herokuapp.com/">
+  <img src="https://xcodeswift.herokuapp.com/badge.svg">
+</a></p>
+
+<p>Sake is a Swift command line tool that helps you automate tasks in your projects. It&rsquo;s heavily inspired by <a href="https://en.wikipedia.org/wiki/Makefile">Makefile</a> and <a href="https://github.com/ruby/rake">Rake</a>.</p>
+<h2 id='path-to-1-0-0' class='heading'>Path to 1.0.0 🚴</h2>
+
+<p>Sake hasn&rsquo;t reached the first major version yet. We are still defining many things around how Sake works and how the API works. These decissions might result into breaking changes in the Sake APIs. Once we reach the version 1.0.0 we&rsquo;ll use <a href="https://semver.org/">semantic versioning</a> ensuring that only major versions include breaking changes.</p>
+
+<p>We kindly ask you to use Sake on your own responsibility during this early stage and encourage you to participate in discussions that might determine what Sake final version looks like.</p>
+<h2 id='sake-amp-fastlane' class='heading'>Sake &amp; fastlane</h2>
+
+<p>Although Sake &amp; fastlane share the same core idea, facilitate tasks automation in any project, there are some subtle differences in the implementation and the scope of the tools that is worth mentioning:</p>
+
+<ul>
+<li>Sake is developed entirely in Swift while fastlane is developed in Ruby. fastlane supports defining the lanes in Swift but it&rsquo;s proxy layer to talk to the fastlane core in Ruby.</li>
+<li>Sake aims for simplicity. It&rsquo;s up to the developer to build any necessary abstraction and Sake facilitates it by providing testing and code splitting features. fastlane on the other side also aims to provide a lot of abstractions for many tools, making them easier to use.</li>
+<li>Sake is installed in the system as a compiled executable with a couple of libraries and thus it&rsquo;s very portable. On the other side fastlane needs to be installed using RubyGems or Bundler and it comes with a bunch of dependencies.</li>
+<li>Sake integrates well with Xcode and the tools Apple OSs developers are used to, allowing them to integrate their tasks with third party Swift dependencies easily.</li>
+</ul>
+
+<p>There&rsquo;s no good or bad tool. Choosing the one for your project depends on the project and the team that will work on it.</p>
+<h2 id='motivation' class='heading'>Motivation 💅</h2>
+
+<p>Why automating tasks using shell scripting or Ruby when you can do it in Swift, a language you are already familiar with?
+Sake aims to provide a command line tool and the foundation to automate your tasks in Swift.</p>
+<h2 id='installation' class='heading'>Installation 🥑</h2>
+
+<p>You can easily install sake using <a href="https://brew.sh/">Homebrew</a>:</p>
+<pre class="highlight plaintext"><code>brew tap xcodeswift/sake git@github.com:xcodeswift/sake.git
+brew install sake
+</code></pre>
+<h2 id='setup' class='heading'>Setup ⚒</h2>
+
+<ol>
+<li>Git clone the project <code>git clone git@github.com:xcodeswift/sake.git</code>.</li>
+<li>Build <code>swift build</code>.</li>
+</ol>
+<h2 id='sakefile' class='heading'>Sakefile</h2>
+
+<p>Sakefile is the file that defines your project tasks:</p>
+<pre class="highlight swift"><code><span class="c1">// #!/usr/bin/env sake --path</span>
+<span class="kd">import</span> <span class="kt">SakefileDescription</span>
+
+<span class="kt">Sake</span><span class="p">(</span><span class="nv">tasks</span><span class="p">:</span> <span class="p">[</span>
+  <span class="kt">Task</span><span class="p">(</span><span class="s">"build"</span><span class="p">,</span> <span class="nv">description</span><span class="p">:</span> <span class="s">"Builds the project"</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Here is where you define your build task</span>
+  <span class="p">}],</span>
+  <span class="nv">hooks</span><span class="p">:</span> <span class="p">[</span>
+    <span class="o">.</span><span class="nf">beforeAll</span><span class="p">({</span> <span class="nf">print</span><span class="p">(</span><span class="s">"Before all the tasks"</span> <span class="p">)})</span>
+  <span class="p">]</span>
+<span class="p">)</span>
+</code></pre>
+<h2 id='usage' class='heading'>Usage 👩🏻‍💻</h2>
+<h4 id='creating-a-sakefile-swift' class='heading'>Creating a Sakefile.swift 📝</h4>
+
+<p>You can create an empty <code>Sakefile.swift</code> running the following command:</p>
+<pre class="highlight shell"><code>sake init
+</code></pre>
+<h4 id='working-on-the-sakefile-swift' class='heading'>Working on the Sakefile.swift 💼</h4>
+
+<p>You can edit the <code>Sakefile.swift</code> using any text editor. Nonetheless, we recommend you to use Xcode since you&rsquo;ll get syntax highlighting and code autocompletion for free. Sake provides a command to generate the Xcode project where you can edit the <code>Sakefile.swift</code>. You can generate the command by running:</p>
+<pre class="highlight shell"><code>sake generate-xcodeproj
+</code></pre>
+
+<blockquote>
+<p>:warning: Note: You shouldn&rsquo;t modify the content in the main.swift file. Your <code>Sakefile.swift</code> should contain a top level variable named sake in order for Xcode to be able to run Sake.</p>
+</blockquote>
+
+<p>To define the arguments to be passed to Sake you can edit the Scheme as shown in the screenshot below and add your arguments there:</p>
+
+<p><img src="Assets/Scheme.png" alt="scheme"> </p>
+<h4 id='tasks' class='heading'>Tasks ✅</h4>
+<h5 id='run-a-task' class='heading'>Run a task</h5>
+<pre class="highlight shell"><code>sake task name_of_the_task
+</code></pre>
+<h5 id='list-all-the-tasks' class='heading'>List all the tasks</h5>
+<pre class="highlight shell"><code>sake tasks
+</code></pre>
+
+<blockquote>
+<p>Shebang: You can run your <code>Sakefile.swift</code> directly calling <code>./Sakefile.swift</code></p>
+</blockquote>
+<h2 id='utils' class='heading'>Utils ☕️</h2>
+
+<p>Sake includes some utils in <code>SakefileDescription</code> that might be useful for your tasks:</p>
+<pre class="highlight swift"><code><span class="c1">// Shell (examples)</span>
+<span class="k">try</span> <span class="kt">Utils</span><span class="o">.</span><span class="n">shell</span><span class="o">.</span><span class="nf">runAndPrint</span><span class="p">(</span><span class="nv">bash</span><span class="p">:</span> <span class="s">"swift build"</span><span class="p">)</span>
+<span class="k">try</span> <span class="kt">Utils</span><span class="o">.</span><span class="n">shell</span><span class="o">.</span><span class="nf">run</span><span class="p">(</span><span class="nv">bash</span><span class="p">:</span> <span class="s">"swift build"</span><span class="p">)</span>
+
+<span class="c1">// Git (examples)</span>
+<span class="k">let</span> <span class="nv">branch</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">Utils</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="nf">branch</span><span class="p">()</span>
+<span class="k">let</span> <span class="nv">anyChanges</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">Utils</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="nf">anyChanges</span><span class="p">()</span>
+<span class="k">try</span> <span class="kt">Utils</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="nf">commit</span><span class="p">(</span><span class="nv">message</span><span class="p">:</span> <span class="s">"my commit message"</span><span class="p">)</span>
+<span class="k">try</span> <span class="kt">Utils</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="nf">tag</span><span class="p">(</span><span class="s">"3.0.0)
+let tagstry Utils.git.tags()
+
+// HTTP (examples)
+let response = try Utils.http.execute(request: request, parse: { try GitHubRelease.init(data: $0) })
+</span></code></pre>
+<h2 id='sakefile-guidelines' class='heading'>Sakefile Guidelines 🎨</h2>
+
+<p>The Swift code written in the <code>Sakefile.swift</code> file should meet the following guidelines:</p>
+
+<ul>
+<li>It shouldn&rsquo;t fail the execution either using <code>fatalError</code> or force unwrapping nil values. Failing the execution causes the tool to print the stack trace in the console. Instead throw errors that are handled by <code>Sake</code> and nicely printed into the console.</li>
+<li>Code should be synchronous and tasks should be completed by the time the closure execution ends.</li>
+</ul>
+<h2 id='license' class='heading'>License</h2>
+<pre class="highlight plaintext"><code>MIT License
+
+Copyright (c) 2017 xcode.swift
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+</code></pre>
+
+          </section>
+        </section>
+        <section id="footer">
+          <p>Copyright © 2017 xcode.swift. All rights reserved.</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>

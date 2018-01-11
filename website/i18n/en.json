@@ -3,7 +3,7 @@
   "localized-strings": {
     "next": "Next",
     "previous": "Previous",
-    "tagline": "The Swift version of Sake",
+    "tagline": "A make-like build utility for Swift",
     "doc1": "Latin-ish",
     "Example Page": "Example Page",
     "doc2": "document number 2",

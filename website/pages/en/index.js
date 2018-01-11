@@ -102,16 +102,28 @@ const Features = props => (
   <Block layout="fourColumn">
     {[
       {
-        content: 'This is the content of my feature',
-        image: imgUrl('docusaurus.svg'),
-        imageAlign: 'top',
-        title: 'Feature One',
+        content: 'The automation code can be written in Swift and gets compiled and executed by Sake',
+        // image: imgUrl('docusaurus.svg'),
+        // imageAlign: 'top',
+        title: 'Automation in Swift',
       },
       {
-        content: 'The content of my second feature',
-        image: imgUrl('docusaurus.svg'),
-        imageAlign: 'top',
-        title: 'Feature Two',
+        content: 'Easily edit your Sakefile.swift using Xcode and leveraging the syntax highlighting and code autocompletion. You can even run the tasks from there!',
+        // image: imgUrl('docusaurus.svg'),
+        // imageAlign: 'top',
+        title: 'Xcode',
+      },
+      {
+        content: 'Sake supports using SPM dependencies from your Sakefile.swift easily',
+        // image: imgUrl('docusaurus.svg'),
+        // imageAlign: 'top',
+        title: 'Dependencies',
+      },
+      {
+        content: 'Sake supports using SPM dependencies from your Sakefile.swift easily',
+        // image: imgUrl('docusaurus.svg'),
+        // imageAlign: 'top',
+        title: 'Composability',
       },
     ]}
   </Block>

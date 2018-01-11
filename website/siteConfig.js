@@ -18,8 +18,8 @@ const users = [
 const siteConfig = {
   title: 'Sake' /* title for your website */,
   tagline: 'A make-like build utility for Swift',
-  url: 'https://xcodeswift.github.io/sake/' /* your website url */,
-  baseUrl: '' /* base url for your project */,
+  url: 'https://xcodeswift.github.io/' /* your website url */,
+  baseUrl: '/sake' /* base url for your project */,
   projectName: 'sake',
   headerLinks: [
     {doc: 'doc1', label: 'Docs'},
@@ -41,8 +41,8 @@ const siteConfig = {
     'Copyright © ' +
     new Date().getFullYear() +
     ' xcode.swift',
-  // organizationName: 'deltice', // or set an env variable ORGANIZATION_NAME
-  // projectName: 'test-site', // or set an env variable PROJECT_NAME
+  organizationName: 'xcodeswift', // or set an env variable ORGANIZATION_NAME
+  projectName: 'sake', // or set an env variable PROJECT_NAME
   highlight: {
     // Highlight.js theme to use for syntax highlighting in code blocks
     theme: 'default',
