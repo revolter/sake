@@ -18,8 +18,8 @@ const users = [
 const siteConfig = {
   title: 'Sake' /* title for your website */,
   tagline: 'A make-like build utility for Swift',
-  url: 'https://xcodeswift.github.io/' /* your website url */,
-  baseUrl: '/sake' /* base url for your project */,
+  url: 'https://xcodeswift.github.io/sake/' /* your website url */,
+  baseUrl: '/sake/' /* base url for your project */,
   projectName: 'sake',
   headerLinks: [
     {doc: 'doc1', label: 'Docs'},
@@ -34,7 +34,7 @@ const siteConfig = {
   /* colors for website */
   colors: {
     primaryColor: '#f47141',
-    secondaryColor: '#6741f4',
+    secondaryColor: '#161616',
   },
   // This copyright info is used in /core/Footer.js and blog rss/atom feeds.
   copyright:

@@ -1,18 +1,22 @@
 import Foundation
 import SakefileDescription
 
-func generateDocs() throws {
+func publishWebsite() throws {
     try Utils.shell.runAndPrint(bash: "swift package generate-xcodeproj")
     try Utils.shell.runAndPrint(bash: "bundle exec jazzy --clean --sdk macosx --output api --xcodebuild-arguments -scheme,sake,-project,sake.xcodeproj --skip-undocumented")
     try Utils.shell.runAndPrint(bash: "cd website; yarn build;")
     try Utils.shell.runAndPrint(bash: "cd website; USE_SSH=true yarn run publish-gh-pages")
  }
 
+ func serveWebsite() throws {
+     try Utils.shell.runAndPrint(bash: "cd website; yarn start;")
+ }
+
 func createVersion(version: String, branch: String) throws {
     print("> Building the project")
     try Utils.shell.runAndPrint(bash: "swift build")
     print("> Generating docs")
-    try generateDocs()
+    try publishWebsite()
     try Utils.git.addAll()
     try Utils.git.commitAll(message: "[\(branch)] Bump version")
     try Utils.git.tag(version)
@@ -74,7 +78,10 @@ let sake = Sake(tasks: [
     Task("audit-formula", description: "Audits the Homebrew formula") {
         try auditFormula()
     },
-    Task("docs", description: "Generate docs") {
-        try generateDocs()
-    },]
+    Task("publish-website", description: "Generates and publish the website") {
+        try publishWebsite()
+    },
+    Task("serve-website", description: "Serves the website") {
+        try serveWebsite()
+    }]
 )

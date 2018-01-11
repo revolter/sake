@@ -103,28 +103,28 @@ const Features = props => (
     {[
       {
         content: 'The automation code can be written in Swift and gets compiled and executed by Sake',
-        // image: imgUrl('docusaurus.svg'),
-        // imageAlign: 'top',
+        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Swift_logo.svg/2000px-Swift_logo.svg.png",
+        imageAlign: 'top',
         title: 'Automation in Swift',
       },
       {
-        content: 'Easily edit your Sakefile.swift using Xcode and leveraging the syntax highlighting and code autocompletion. You can even run the tasks from there!',
-        // image: imgUrl('docusaurus.svg'),
-        // imageAlign: 'top',
+        content: 'Easily edit your `Sakefile.swift` using Xcode and leverage the syntax highlighting and code autocompletion. You can even run the tasks from there!',
+        image: "http://macosicongallery.com/img/512/xcode-2015-03-13.png",
+        imageAlign: 'top',
         title: 'Xcode',
       },
       {
         content: 'Sake supports using SPM dependencies from your Sakefile.swift easily',
-        // image: imgUrl('docusaurus.svg'),
-        // imageAlign: 'top',
+        image: "https://raw.githubusercontent.com/dvdciri/daggraph/HEAD/img/icon.png",
+        imageAlign: 'top',
         title: 'Dependencies',
       },
-      {
-        content: 'Sake supports using SPM dependencies from your Sakefile.swift easily',
-        // image: imgUrl('docusaurus.svg'),
-        // imageAlign: 'top',
-        title: 'Composability',
-      },
+      // {
+      //   content: 'Sake supports using SPM dependencies from your Sakefile.swift easily',
+      //   // image: imgUrl('docusaurus.svg'),
+      //   // imageAlign: 'top',
+      //   title: 'Composability',
+      // },
     ]}
   </Block>
 );
@@ -133,30 +133,17 @@ const FeatureCallout = props => (
   <div
     className="productShowcaseSection paddingBottom"
     style={{textAlign: 'center'}}>
-    <h2>Feature Callout</h2>
-    <MarkdownBlock>These are features of this project</MarkdownBlock>
+    <h2>Open Source ❤️</h2>
+    <MarkdownBlock>Sake is developed as an open source project under the [xcode.swift](https://github.com/xcodeswift) organization. If you are interested in contriguting you are welcome to dive in and help the project move forward. Xcode.swift is a diverse and inclusive open source organization responsible of developing other open source projects such as [xcproj](https://github.com/xcodeswift/xcproj).</MarkdownBlock>
   </div>
 );
 
-const LearnHow = props => (
+const TryOut = props => (
   <Block background="light">
     {[
       {
-        content: 'Talk about learning how to use this',
-        image: imgUrl('docusaurus.svg'),
-        imageAlign: 'right',
-        title: 'Learn How',
-      },
-    ]}
-  </Block>
-);
-
-const TryOut = props => (
-  <Block id="try">
-    {[
-      {
-        content: 'Talk about trying this out',
-        image: imgUrl('docusaurus.svg'),
+        content: "Sake can be easily installed in your system using <a href=\"httsp://brew.sh\">Homebrew</a>.\n```bash\nbrew install sake\n```\nOnce installed, it provides an easy to use CLI that you can explore by just calling `sake` from your terminal. Sake provides the following commands:\n```bash\nsake init # Initializes a Sakefile.swift\n```\n```bash\nsake generate-xcodeproj # Generates an Xcode project\n```\n```bash\nsake tasks # Prints all the tasks\n```\n```bash\nsake task xx # Executes task xx\n```\n",
+        image: imgUrl('terminal.gif'),
         imageAlign: 'left',
         title: 'Try it Out',
       },
@@ -164,18 +151,31 @@ const TryOut = props => (
   </Block>
 );
 
-const Description = props => (
-  <Block background="dark">
+const Sakefile = props => (
+  <Block id="try">
     {[
       {
-        content: 'This is another description of how this project is useful',
+        content: 'Talk about trying this out',
         image: imgUrl('docusaurus.svg'),
-        imageAlign: 'right',
-        title: 'Description',
+        imageAlign: 'left',
+        title: 'Sakefile.swift',
       },
     ]}
   </Block>
 );
+
+// const Description = props => (
+//   <Block background="dark">
+//     {[
+//       {
+//         content: 'This is another description of how this project is useful',
+//         image: imgUrl('docusaurus.svg'),
+//         imageAlign: 'right',
+//         title: 'Description',
+//       },
+//     ]}
+//   </Block>
+// );
 
 const Showcase = props => {
   if ((siteConfig.users || []).length === 0) {
@@ -199,9 +199,9 @@ const Showcase = props => {
       <p>This project is used by all these people</p>
       <div className="logos">{showcase}</div>
       <div className="more-users">
-        <a className="button" href={pageUrl('users.html', props.language)}>
+        {/* <a className="button" href={pageUrl('users.html', props.language)}>
           More {siteConfig.title} Users
-        </a>
+        </a> */}
       </div>
     </div>
   );
@@ -217,9 +217,9 @@ class Index extends React.Component {
         <div className="mainContainer">
           <Features />
           <FeatureCallout />
-          <LearnHow />
           <TryOut />
-          <Description />
+          <Sakefile />
+          {/* <Description /> */}
           <Showcase language={language} />
         </div>
       </div>
