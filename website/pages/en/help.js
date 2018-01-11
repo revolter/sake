@@ -22,11 +22,11 @@ class Help extends React.Component {
         title: 'Browse Docs',
       },
       {
-        content: 'Ask questions about the documentation and project',
-        title: 'Join the community',
+        content: 'Ask questions about the documentation and project <br/><a href="http://xcodeswift.herokuapp.com/">Join group</a>',
+        title: 'Join Slack',
       },
       {
-        content: "Find out what's new with this project",
+        content: "Find out what's new with this project following <a href='https://twitter.com/xcodeswiftio'>@xcode.swift</a> on Twitter.",
         title: 'Stay up to date',
       },
     ];
@@ -38,8 +38,17 @@ class Help extends React.Component {
             <header className="postHeader">
               <h2>Need help?</h2>
             </header>
-            <p>This project is maintained by a dedicated group of people.</p>
+            <p>If you need help with Sake we recommend you to check out the links below:</p>
             <GridBlock contents={supportLinks} layout="threeColumn" />
+          </div>
+          <div className="post">
+            <header className="postHeader">
+              <h2>xcode.swift</h2>
+            </header>
+            <p>This project is maintained by a non-profit and open source organization <a href='https://github.com/xcodeswift'>xcode.swift</a>. At xcode.swift we aim to build tools written in Swift to facilitate and automate working tasks in Xcode projects.</p>
+            <p>
+            Xcode.swift is an inclusive organziation where anyone is welcome and encouraged to contribute. All the tools are the result of many people's work and thus, they are published and maintain as part of an organization of which everyone is part.
+            </p>
           </div>
         </Container>
       </div>

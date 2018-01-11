@@ -8,7 +8,7 @@
 /* List of projects/orgs using your project for the users page */
 const users = [
   {
-    caption: 'User1',
+    caption: 'Pedro Piñera',
     image: '/test-site/img/docusaurus.svg',
     infoLink: 'https://www.facebook.com',
     pinned: true,
@@ -16,16 +16,15 @@ const users = [
 ];
 
 const siteConfig = {
-  title: 'Test Site' /* title for your website */,
-  tagline: 'A website for testing',
-  url: 'https://facebook.github.io' /* your website url */,
-  baseUrl: '/test-site/' /* base url for your project */,
-  projectName: 'test-site',
+  title: 'Sake' /* title for your website */,
+  tagline: 'A make-like build utility for Swift',
+  url: 'https://xcodeswift.github.io/sake/' /* your website url */,
+  baseUrl: '' /* base url for your project */,
+  projectName: 'sake',
   headerLinks: [
     {doc: 'doc1', label: 'Docs'},
     {doc: 'doc4', label: 'API'},
     {page: 'help', label: 'Help'},
-    {blog: true, label: 'Blog'},
   ],
   users,
   /* path to images for header/footer */
@@ -34,14 +33,14 @@ const siteConfig = {
   favicon: 'img/favicon.png',
   /* colors for website */
   colors: {
-    primaryColor: '#2E8555',
-    secondaryColor: '#205C3B',
+    primaryColor: '#f47141',
+    secondaryColor: '#6741f4',
   },
   // This copyright info is used in /core/Footer.js and blog rss/atom feeds.
   copyright:
     'Copyright © ' +
     new Date().getFullYear() +
-    ' Your Name or Your Company Name',
+    ' xcode.swift',
   // organizationName: 'deltice', // or set an env variable ORGANIZATION_NAME
   // projectName: 'test-site', // or set an env variable PROJECT_NAME
   highlight: {
