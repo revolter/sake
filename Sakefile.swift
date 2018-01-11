@@ -3,11 +3,6 @@
 import Foundation
 import SakefileDescription
 
-func generateDocs() throws {
-    try Utils.shell.runAndPrint(bash: "swift package generate-xcodeproj")
-    try Utils.shell.runAndPrint(bash: "bundle exec jazzy --clean --sdk macosx --xcodebuild-arguments -scheme,sake --skip-undocumented")
-}
-
 func createVersion(version: String, branch: String) throws {
     print("> Building the project")
     try Utils.shell.runAndPrint(bash: "swift build")
@@ -51,9 +46,6 @@ func auditFormula() throws {
 }
 
 let sake = Sake(tasks: [
-    Task("docs", description: "Generates the project documentation") {
-        try generateDocs()
-    },
     Task("ci", description: "Runs the operations that are executed on CI") {
         print("> Linting the project")
         try Utils.shell.runAndPrint(bash: "swiftlint")
