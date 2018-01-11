@@ -1,6 +1,4 @@
-# Sake - Swift Make 🍶
-
-<img width="300" src="Assets/Logo.png"/>
+# Sake - Swift Make 
 
 <a href="https://travis-ci.org/xcodeswift/sake">
 <img src="https://travis-ci.org/xcodeswift/sake.svg?branch=master" alt="Travis"/>
