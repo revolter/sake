@@ -26,16 +26,6 @@ Sake hasn't reached the first major version yet. We are still defining many thin
 
 We kindly ask you to use Sake on your own responsibility during this early stage and encourage you to participate in discussions that might determine what Sake final version looks like.
 
-## Sake & fastlane
-Although Sake & fastlane share the same core idea, facilitate tasks automation in any project, there are some subtle differences in the implementation and the scope of the tools that is worth mentioning:
-
-- Sake is developed entirely in Swift while fastlane is developed in Ruby. fastlane supports defining the lanes in Swift but it's proxy layer to talk to the fastlane core in Ruby.
-- Sake aims for simplicity. It's up to the developer to build any necessary abstraction and Sake facilitates it by providing testing and code splitting features. fastlane on the other side also aims to provide a lot of abstractions for many tools, making them easier to use.
-- Sake is installed in the system as a compiled executable with a couple of libraries and thus it's very portable. On the other side fastlane needs to be installed using RubyGems or Bundler and it comes with a bunch of dependencies.
-- Sake integrates well with Xcode and the tools Apple OSs developers are used to, allowing them to integrate their tasks with third party Swift dependencies easily.
-
-There's no good or bad tool. Choosing the one for your project depends on the project and the team that will work on it.
-
 ## Motivation 💅
 
 Why automating tasks using shell scripting or Ruby when you can do it in Swift, a language you are already familiar with?
@@ -137,6 +127,18 @@ The Swift code written in the `Sakefile.swift` file should meet the following gu
 
 - It shouldn't fail the execution either using `fatalError` or force unwrapping nil values. Failing the execution causes the tool to print the stack trace in the console. Instead throw errors that are handled by `Sake` and nicely printed into the console.
 - Code should be synchronous and tasks should be completed by the time the closure execution ends.
+
+## Alternatives 🤩
+
+Sake is not the only tool that helps with automation. There are other tools that are also worth considering:
+
+| Tool | Link | Language |
+| -------|-------------| -----|
+| Fastlane | [fastlane](https://github.com/fastlane) | Ruby |
+| Beak | [yonaskolb/beak](https://github.com/beak) | Swift |
+| Rake | [ruby/rake](https://github.com/ruby/rake) | Ruby |
+
+> If you know any other tool that you think fits into this section feel free to open a PR proposing it.
 
 ## License
 
