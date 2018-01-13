@@ -24,8 +24,12 @@ Group {
     let tasksCommand = command(Option("path", default: "", flag: "p", description: "Sakefile.swift path")) { (path) in
         try RunSakefile(path: directoryFrom(path: path), arguments: ["tasks"]).execute()
     }
+    let versionCommand = command() {
+        print(version)
+    }
     $0.addCommand("init", "initializes a Sakefile in the current directory", initCommand)
     $0.addCommand("task", "runs the task passed", taskCommand)
     $0.addCommand("tasks", "lists all the available tasks", tasksCommand)
     $0.addCommand("generate-xcodeproj", "generates an Xcode project to edit the Sakefile", generateXcodeProjCommand)
+    $0.addCommand("version", "prints the version of Sake", versionCommand)
 }.run()
