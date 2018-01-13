@@ -39,6 +39,7 @@ public class GenerateSakefile {
 
     static func defaultContent() -> String {
         return """
+        // sakefile-description-version:1.0
         import Foundation
         import SakefileDescription
 
