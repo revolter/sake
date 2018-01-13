@@ -1,5 +1,7 @@
 import Foundation
 
+// MARK: - Random
+
 extension String {
     
     static func randomString(length: Int = 10) -> String {

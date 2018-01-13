@@ -16,7 +16,7 @@ let package = Package(
         .package(url: "https://github.com/xcodeswift/SwiftShell.git", .revision("12d47f0ed2f9a8dc11b4bb6a0d9ba3d0cb053a56"))
     ],
     targets: [
-        .target(name: "SakeKit", dependencies: ["xcproj", "PathKit", "SwiftShell"]),
+        .target(name: "SakeKit", dependencies: ["xcproj", "PathKit", "SakefileDescriptionV1"]),
         .target(name: "SakefileDescriptionV1", dependencies: ["SwiftShell"]),
         .target(name: "sake", dependencies: ["Commander", "SakeKit"]),
         .testTarget(name: "SakeKitTests", dependencies: ["SakeKit"]),
