@@ -2,6 +2,9 @@
 
 ## Next version
 
+### Added
+- Version command https://github.com/xcodeswift/sake/pull/54 - by @pepibumur.
+
 ## 0.5.0
 
 ### Added

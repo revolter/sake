@@ -6,17 +6,29 @@ func publishWebsite() throws {
     try Utils.shell.runAndPrint(bash: "bundle exec jazzy --clean --sdk macosx --output api --xcodebuild-arguments -scheme,sake,-project,sake.xcodeproj --skip-undocumented")
     try Utils.shell.runAndPrint(bash: "cd website; yarn build;")
     try Utils.shell.runAndPrint(bash: "cd website; USE_SSH=true yarn run publish-gh-pages")
- }
+}
 
- func serveWebsite() throws {
-     try Utils.shell.runAndPrint(bash: "cd website; yarn start;")
- }
+func serveWebsite() throws {
+    try Utils.shell.runAndPrint(bash: "cd website; yarn start;")
+}
+
+func updateVersionSwift(version: String) throws {
+    let versionContent = """
+    import Foundation
+    public let version = "\(version)"
+    """
+    let currentDirectoryPath = FileManager.default.currentDirectoryPath
+    let versionURL = URL(fileURLWithPath: currentDirectoryPath)
+        .appendingPathComponent("Sources/SakeKit/Version.swift")
+    try versionContent.write(to: versionURL, atomically: true, encoding: .utf8)
+}
 
 func createVersion(version: String, branch: String) throws {
     print("> Building the project")
     try Utils.shell.runAndPrint(bash: "swift build")
     print("> Generating docs")
     try publishWebsite()
+    try updateVersionSwift(version: version)
     try Utils.git.addAll()
     try Utils.git.commitAll(message: "[\(branch)] Bump version")
     try Utils.git.tag(version)
