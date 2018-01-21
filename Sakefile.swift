@@ -27,7 +27,7 @@ func createVersion(version: String, branch: String) throws {
     print("> Building the project")
     try Utils.shell.runAndPrint(bash: "swift build")
     print("> Generating docs")
-    try publishWebsite()
+    //try publishWebsite()
     try updateVersionSwift(version: version)
     try Utils.git.addAll()
     try Utils.git.commitAll(message: "[\(branch)] Bump version")
