@@ -42,7 +42,7 @@ brew install sake
 
 ## Setup ⚒
 
-1. Git clone the project `git clone git@github.com:xcodeswift/sake.git`.
+1. Git clone the project `git clone https://github.com/xcodeswift/sake.git`.
 2. Build `swift build`.
 
 ## Sakefile
