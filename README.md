@@ -135,7 +135,7 @@ Sake is not the only tool that helps with automation. There are other tools that
 | Tool | Link | Language |
 | -------|-------------| -----|
 | Fastlane | [fastlane](https://github.com/fastlane) | Ruby |
-| Beak | [yonaskolb/beak](https://github.com/beak) | Swift |
+| Beak | [yonaskolb/beak](https://github.com/yonaskolb/beak) | Swift |
 | Rake | [ruby/rake](https://github.com/ruby/rake) | Ruby |
 
 > If you know any other tool that you think fits into this section feel free to open a PR proposing it.
