@@ -115,7 +115,7 @@ let branch = try Utils.git.branch()
 let anyChanges = try Utils.git.anyChanges()
 try Utils.git.commit(message: "my commit message")
 try Utils.git.tag("3.0.0)
-let tagstry Utils.git.tags()
+let tags = try Utils.git.tags()
 
 // HTTP (examples)
 let response = try Utils.http.execute(request: request, parse: { try GitHubRelease.init(data: $0) })
