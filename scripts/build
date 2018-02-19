@@ -10,7 +10,7 @@ build_data_path=$project_path/build.data
 sake_path=$project_path/.build/release/sake
 library_path_swift_content="import Foundation\nvar librariesPath: String? = \""$include_path"\""
 echo $library_path_swift_content > $project_path/Sources/SakeKit/LibraryPath.swift
-swift build --disable-sandbox -c release --package-path $project_path > /dev/null || { echo "Swift build failed" && exit 1; }
+swift build --disable-sandbox -c release --package-path $project_path
 
 touch $build_data_path
 echo "binary: "$sake_path > $build_data_path
