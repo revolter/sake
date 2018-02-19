@@ -1,0 +1,21 @@
+#!/bin/sh
+
+if ! [[ $# -eq 2 ]] ; then
+    echo "You should specify project and include paths: scripts/build project_path include_path"
+    exit 1
+fi
+project_path=${1%/}
+include_path=${2%/}
+build_data_path=$project_path/build.data
+sake_path=$project_path/.build/release/sake
+library_path_swift_content="import Foundation\nvar librariesPath: String? = \""$include_path"\""
+echo $library_path_swift_content > $project_path/Sources/SakeKit/LibraryPath.swift
+swift build --disable-sandbox -c release --package-path $project_path > /dev/null || { echo "Swift build failed" && exit 1; }
+
+touch $build_data_path
+echo "binary: "$sake_path > $build_data_path
+echo "library: "$project_path"/.build/release/libSakefileDescription.dylib" >> $build_data_path
+echo "library: "$project_path"/.build/release/SakefileDescription.swiftdoc" >> $build_data_path
+echo "library: "$project_path"/.build/release/SakefileDescription.swiftmodule" >> $build_data_path
+echo "library: "$project_path"/.build/release/SwiftShell.swiftdoc" >> $build_data_path
+echo "library: "$project_path"/.build/release/SwiftShell.swiftmodule" >> $build_data_path

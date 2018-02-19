@@ -1,4 +1,2 @@
 import Foundation
-
-var librariesPath: String?
-
+var librariesPath: String? = "/include"

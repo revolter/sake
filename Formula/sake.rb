@@ -8,21 +8,14 @@ class Sake < Formula
   depends_on :xcode => "9.2"
 
   def install
-    sake_path = "#{buildpath}/.build/release/sake"
-    ohai "Building Sake"
-    library_path_swift_content = [
-      "import Foundation",
-      "var librariesPath: String? = \"#{include}\"",
-    ].join("\n") + "\n"
-    File.write("#{buildpath}/Sources/SakeKit/LibraryPath.swift", library_path_swift_content)
-    system("swift build --disable-sandbox -c release")
-    bin.install sake_path
-    ohai "Installing libraries"
-    include.install "#{buildpath}/.build/release/libSakefileDescription.dylib"
-    include.install "#{buildpath}/.build/release/SakefileDescription.swiftdoc"
-    include.install "#{buildpath}/.build/release/SakefileDescription.swiftmodule"
-    include.install "#{buildpath}/.build/release/SwiftShell.swiftdoc"
-    include.install "#{buildpath}/.build/release/SwiftShell.swiftmodule"
+    system("#{buildpath}/scripts/build #{buildpath.to_s} #{include.to_s}")
+    build_data = File.readlines("#{buildpath}/build.data")
+    binary = build_data.select{ |f| f.include?("binary:") }.map{ |f| f.gsub("binary: ", "")}.first
+    libraries = build_data.select{ |f| f.include?("library:") }.map{ |f| f.gsub("library: ", "")}
+    bin.install "#{buildpath}/#{binary}"
+    libraries.each do |library_path|
+      include.install "#{buildpath}/#{library_path}"
+    end
   end
 
   test do
