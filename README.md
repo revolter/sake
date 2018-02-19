@@ -28,7 +28,7 @@ We kindly ask you to use Sake on your own responsibility during this early stage
 
 ## Motivation 💅
 
-Why automating tasks using shell scripting or Ruby when you can do it in Swift, a language you are already familiar with?
+Why automate tasks using shell scripting or Ruby when you can do it in Swift, a language you are already familiar with?
 Sake aims to provide a command line tool and the foundation to automate your tasks in Swift.
 
 ## Installation 🥑
