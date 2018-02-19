@@ -1,7 +1,8 @@
 🚀 Check out the guidelines [here](https://github.com/xcodeswift/contributors/blob/master/CHANGELOG_GUIDELINES.md)
 
-## Next version
+## next version
 
+## 0.8.0
 ### Fixed
 - Grammatical error in README - by @ayushgoel
 
