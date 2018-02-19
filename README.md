@@ -114,7 +114,7 @@ try Utils.shell.run(bash: "swift build")
 let branch = try Utils.git.branch()
 let anyChanges = try Utils.git.anyChanges()
 try Utils.git.commit(message: "my commit message")
-try Utils.git.tag("3.0.0)
+try Utils.git.tag("3.0.0")
 let tags = try Utils.git.tags()
 
 // HTTP (examples)
